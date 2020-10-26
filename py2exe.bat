@@ -1,0 +1,1 @@
+pyinstaller -w -i main.ico analysis.py
