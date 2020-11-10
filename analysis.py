@@ -229,6 +229,7 @@ class MainTool(QMainWindow,Ui_MainWindow):
         self.add.clicked.connect(self.add_result)
         self.pushButton.clicked.connect(self.show_detail)
         self.label_32.setToolTip('Ac=C1*hc^2+C2*hc+C3*hc^0.5+C4*hc^0.25')
+        self.checkBoxApplyToAllTips.setToolTip('If checked,the next file will also be used the same point of time,\notherwise, use the first point')
 
         self.workThread.successSignal.connect(self.setResult)
 
@@ -499,19 +500,19 @@ class MainTool(QMainWindow,Ui_MainWindow):
             self.showErrorDialog('Should Set Tip Geometry')
             self.ingcalculateResult = False
             return
-
         try:
             pr = np.array(self.prsample_et.text(), dtype=np.float64)
         except Exception as e:
             self.showErrorDialog('Illegal Params:PRsample')
             self.ingcalculateResult = False
             return
-
+        
         before = self.getbeforeindex()
         after = self.getafterindex()
         if before == 0 or after == 0 or before == index or after == index:
             self.ingcalculateResult = False
             return
+        
         if self.mode == 1:
             afm = calculate_AFM.compute(self.sensitivity, self.springConstant, self.radius,self.data.T_list[before:index],self.data.T_list[index:after],self.data.m_list[before:index],self.data.m_list[index:after], self.data.V_list[before:index],self.data.V_list[index:after])
             E = 2 * self.poissonvalue * afm
@@ -519,6 +520,7 @@ class MainTool(QMainWindow,Ui_MainWindow):
 
         else:
             # self.compute_s_data()
+            
             self.es = self.compute_es(pr)
             if self.es is None:
                 self.ingcalculateResult = False
@@ -526,6 +528,9 @@ class MainTool(QMainWindow,Ui_MainWindow):
             
             self.compute_h()
             self.detail = self.create_detail()
+        ## auto add result()
+        
+        self.add_result()
         self.ingcalculateResult = False
 
 
@@ -680,6 +685,7 @@ class MainTool(QMainWindow,Ui_MainWindow):
                 self.draw_tm_retract(self.xdata[self.retract_index],self.ydata[self.retract_index])
                 self.canvas_tm.draw_idle()
                 self.compute_s_data()
+                self.calculateResult()
             elif selectReset is not None and action == selectReset:
                 if self.zooming:
                     self.toolbar.zoom()
@@ -725,9 +731,11 @@ class MainTool(QMainWindow,Ui_MainWindow):
                 self.data = datas[0]
                 if self.retract_index+1 > lenth:
                     self.retract_index = 0
+                if not self.checkBoxApplyToAll.isChecked():
+                    self.retract_index = 0
                 self.initDataXY()
                 self.draw_t_m(True)
-                if self.retract_index>0 and self.checkBoxApplyToAll.isChecked():
+                if self.retract_index>0:
                     self.setindexdata()
                     self.compute_s_data()
                     self.calculateResult()
@@ -1047,10 +1055,10 @@ class MainTool(QMainWindow,Ui_MainWindow):
         self.resultlist.clear()
         self.filelist.clear()
         for i in os.listdir(dir):
-            if os.path.splitext(i)[1] == '.txt' or os.path.splitext(i)[1] == '.xlsx':
+            if os.path.splitext(i)[1] == '.txt' or os.path.splitext(i)[1] == '.xlsx' or os.path.splitext(i)[1] == '.xls':
                 self.filelist.append(os.path.join(dir, i))
         if len(self.filelist) <= 0:
-            self.showErrorDialog('Not Found .txt Or .xlsx File')
+            self.showErrorDialog('Not Found .txt .xlsx .xls File')
             return
         self.inputdata(self.filelist[0])
         self.fileindex = 0
@@ -1101,11 +1109,11 @@ class MainTool(QMainWindow,Ui_MainWindow):
         return detail
 
     def open(self):
-        files,ok1=QFileDialog.getOpenFileNames(self,"Select File",self.settings.value('select',"/"),"Text Files (*.txt *.xlsx)")
+        files,ok1=QFileDialog.getOpenFileNames(self,"Select File",self.settings.value('select',"/"),"Text Files (*.txt *.xlsx *.xls)")
         if(len(files) > 0):
             self.settings.setValue('select', os.path.abspath(os.path.dirname(files[0])+os.path.sep+"."))
             if len(files) <= 0:
-                self.showErrorDialog('Not Found .txt Or .xlsx File')
+                self.showErrorDialog('Not Found .txt .xlsx .xls File')
                 return
             self.open_file(files[0])
 
@@ -1144,7 +1152,7 @@ class MainTool(QMainWindow,Ui_MainWindow):
             self.showToast('Save Success:' + filename)
         except Exception as i:
             print(repr(i))
-            self.showErrorDialog('Excel Writer Error,Permission denied')
+            self.showErrorDialog('Excel Writer Error,maybe the file has been opened')
 
 
     def save(self):

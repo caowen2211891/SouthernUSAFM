@@ -115,6 +115,22 @@ class ConfigData(object):
     def setCountPointColor(self,color):
         self.settings.setValue('color_countpoint', color)
 
+    def getTimeCoefficient(self):
+        return self.settings.value('time_coefficient', "1")
 
+    def setTimeCoefficient(self,coefficient):
+        self.settings.setValue('time_coefficient', coefficient)
+
+    def getAppliedCoefficient(self):
+        return self.settings.value('applied_coefficient', "1")
+
+    def setAppliedCoefficient(self,coefficient):
+        self.settings.setValue('applied_coefficient', coefficient)
+    
+    def getIndentationCoefficient(self):
+        return self.settings.value('indentation_coefficient', "1")
+
+    def setIndentationCoefficient(self,coefficient):
+        self.settings.setValue('indentation_coefficient', coefficient)
 
 

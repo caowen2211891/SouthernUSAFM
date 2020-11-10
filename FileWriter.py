@@ -53,8 +53,23 @@ def write_format(file,name,edata):
     else:   
         file.write(name + '  %.7e' % (edata))
         
+def write_log_info(filename,logInfo):
 
+    current_path = os.path.abspath(filename)
 
+    father_path = os.path.abspath(os.path.dirname(current_path) + os.path.sep + ".")
+
+    info_path = father_path + os.path.sep + 'dataInfo'
+
+    mkdir(info_path) 
+
+    filename = info_path + os.path.sep + os.path.basename(filename) + '_info.txt'
+
+    info = open(filename,'w+')
+
+    info.write(logInfo)
+
+    info.close()
 
 def write(filename,datas):
 

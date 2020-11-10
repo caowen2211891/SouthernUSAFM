@@ -71,11 +71,14 @@
       </widget>
      </item>
      <item>
-      <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="2">
-        <widget class="QLabel" name="label_5">
+      <layout class="QGridLayout" name="gridLayout_2" columnstretch="2,1,1,1">
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_7">
+         <property name="frameShadow">
+          <enum>QFrame::Plain</enum>
+         </property>
          <property name="text">
-          <string>Unit</string>
+          <string>Column</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -98,14 +101,94 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QComboBox" name="t_comboBox">
-         <property name="currentText">
+       <item row="2" column="3">
+        <widget class="QComboBox" name="al_unitcomboBox">
+         <item>
+          <property name="text">
+           <string>N</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>uN</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="3" column="3">
+        <widget class="QComboBox" name="id_unitcomboBox">
+         <item>
+          <property name="text">
+           <string>m</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>cm</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>mm</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>um</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>nm</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QLineEdit" name="applied_coefficient_edit">
+         <property name="text">
+          <string>1</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QComboBox" name="al_comboBox">
+         <property name="currentIndex">
+          <number>-1</number>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QComboBox" name="id_comboBox">
+         <property name="currentIndex">
+          <number>-1</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_11">
+         <property name="text">
           <string/>
          </property>
         </widget>
        </item>
-       <item row="1" column="2">
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_8">
+         <property name="minimumSize">
+          <size>
+           <width>100</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Height of tip</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3">
         <widget class="QComboBox" name="t_unitcomboBox">
          <item>
           <property name="text">
@@ -135,97 +218,48 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="1">
-        <widget class="QLabel" name="label_7">
-         <property name="frameShadow">
-          <enum>QFrame::Plain</enum>
+       <item row="1" column="2">
+        <widget class="QLineEdit" name="time_coefficient_edit">
+         <property name="inputMethodHints">
+          <set>Qt::ImhPreferNumbers</set>
          </property>
          <property name="text">
-          <string>Column</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
+          <string>1</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_11">
-         <property name="text">
+       <item row="1" column="1">
+        <widget class="QComboBox" name="t_comboBox">
+         <property name="currentText">
           <string/>
          </property>
         </widget>
        </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_8">
-         <property name="minimumSize">
-          <size>
-           <width>100</width>
-           <height>0</height>
-          </size>
-         </property>
+       <item row="0" column="3">
+        <widget class="QLabel" name="label_5">
          <property name="text">
-          <string>Indentation Depth:</string>
+          <string>Unit</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </item>
-       <item row="2" column="1">
-        <widget class="QComboBox" name="al_comboBox">
-         <property name="currentIndex">
-          <number>-1</number>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="2">
-        <widget class="QComboBox" name="al_unitcomboBox">
-         <item>
-          <property name="text">
-           <string>N</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>uN</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QComboBox" name="id_comboBox">
-         <property name="currentIndex">
-          <number>-1</number>
-         </property>
-        </widget>
-       </item>
        <item row="3" column="2">
-        <widget class="QComboBox" name="id_unitcomboBox">
-         <item>
-          <property name="text">
-           <string>m</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>cm</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>mm</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>um</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>nm</string>
-          </property>
-         </item>
+        <widget class="QLineEdit" name="indentation_coefficient_edit">
+         <property name="text">
+          <string>1</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QLabel" name="label_9">
+         <property name="text">
+          <string>Coefficient</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
         </widget>
        </item>
       </layout>

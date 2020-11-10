@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QDoubleValidator
 
 from Ui_Config import Ui_Form
 
-
+import numpy as np
 from PyQt5.QtWidgets import QColorDialog, QDialog
 
 from SoftConfig import ConfigData
@@ -65,6 +65,13 @@ class ConfigDailog(QDialog,Ui_Form):
         self.colorButton.setStyleSheet('QWidget {background-color:%s}'%self.color)
         self.colorButton.clicked.connect(self.colorClick)
         self.color_comboBox.currentTextChanged.connect(self.colorchange)
+
+        self.time_coefficient_edit.setText(self.cf.getTimeCoefficient())
+        self.applied_coefficient_edit.setText(self.cf.getAppliedCoefficient())
+        self.indentation_coefficient_edit.setText(self.cf.getIndentationCoefficient())
+        self.time_coefficient_edit.setValidator(QDoubleValidator())
+        self.applied_coefficient_edit.setValidator(QDoubleValidator())
+        self.indentation_coefficient_edit.setValidator(QDoubleValidator())
 
         self.buttonBox.accepted.connect(self.ok)
         self.buttonBox.rejected.connect(self.cancel)
@@ -129,6 +136,11 @@ class ConfigDailog(QDialog,Ui_Form):
         self.cf.setRetractPointColor(self.colorData['RetractPoint'])
         self.cf.setSmoothLineColor(self.colorData['SmoothLine'])
         self.cf.setCountPointColor(self.colorData['CountPoint'])
+
+        self.cf.setTimeCoefficient(str(np.array(self.time_coefficient_edit.text(), dtype=np.float64)))
+        self.cf.setAppliedCoefficient(str(np.array(self.applied_coefficient_edit.text(), dtype=np.float64)))
+        self.cf.setIndentationCoefficient(str(np.array(self.indentation_coefficient_edit.text(), dtype=np.float64)))
+
 
         self.cf.setAsDefault(True)
         self.cancel()

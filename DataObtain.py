@@ -4,7 +4,8 @@ import linecache
 
 import numpy as np
 import pandas as pd
-
+import FileWriter
+import os
 from SoftConfig import ConfigData
 
 
@@ -41,7 +42,37 @@ def getData(files):
     length = len(list)
     if length<=0:
         return Datas
+
+    ##indentation
+    m_index = cf.getHeightColumn()
+    ##applied
+    v_index = cf.getFdColumn()
+    ##time
+    s_index = cf.getTimeColumn()
+
+    m_unit = cf.getHeightUnitNo()
+    v_unit = cf.getFDUnitNo()
+    s_unit = cf.getTimeUnitNo()
+
+    timeCoefficient = np.array(cf.getTimeCoefficient(), dtype=np.float64)
+    appliedCoefficient = np.array(cf.getAppliedCoefficient(), dtype=np.float64)
+    indentationCoefficient = np.array(cf.getIndentationCoefficient(), dtype=np.float64)
+    
     for n in range(len(list)):
+        fname = list[n]
+        fileinfo = 'file: ' + os.path.basename(fname)+ '\n'
+        fileinfo = fileinfo + 'settings: '+ '\n'
+        fileinfo = fileinfo+ "%-20s\t\t%-20s\t\t%-20s\t\t%-20s\n"%("type","index","Coefficient","unit")+"-" * 50
+        fileinfo = fileinfo+'\n'
+        fileinfo = fileinfo+ "%-20s\t\t%-20s\t\t%-20s\t\t%-20s\n"%("time",str(s_index+1),str(timeCoefficient),str(cf.getTimeUnit()))
+        fileinfo = fileinfo+ "%-20s\t\t%-20s\t\t%-20s\t\t%-20s\n"%("applied",str(v_index+1),str(appliedCoefficient),str(cf.getFdUnit()))
+        fileinfo = fileinfo+ "%-20s\t\t%-20s\t\t%-20s\t\t%-20s\n"%("indentation",str(m_index+1),str(indentationCoefficient),str(cf.getHeightUnit()))
+        spstr = cf.getDefalutSplit()
+        if spstr == ' ':
+            spstr = 'Space'
+        elif spstr == '\t':
+            spstr ='Tab'
+        fileinfo = fileinfo + '\nsplit by: '+ spstr + '\n\n\n'
         try:
             retracttime = -1
             last_retract_index = -1
@@ -50,38 +81,31 @@ def getData(files):
             V_back_list = []
             sensitivity = -1
             springConstant = -1
-            m_index = cf.getHeightColumn()
-            v_index = cf.getFdColumn()
-            s_index = cf.getTimeColumn()
 
-            m_unit = cf.getHeightUnitNo()
-            v_unit = cf.getFDUnitNo()
-            s_unit = cf.getTimeUnitNo()
-            fname = list[n]
             if fname.endswith('.txt'):
                 lines = linecache.getlines(fname)
                 line_len = len(lines)
                 for i in range(line_len):
                     values = lines[i].split(cf.getDefalutSplit())
                     try:
-                        m_back_data = np.array(values[m_index], dtype=np.float64)
-                        V_back_data = np.array(values[v_index], dtype=np.float64)
-                        T_back_data = np.array(values[s_index], dtype=np.float64)
+                        m_back_data = np.array(values[m_index], dtype=np.float64) *indentationCoefficient
+                        V_back_data = np.array(values[v_index], dtype=np.float64) *appliedCoefficient
+                        T_back_data = np.array(values[s_index], dtype=np.float64) *timeCoefficient
                         m_back_list.append(m_back_data * m_unit)
                         V_back_list.append(V_back_data * v_unit)
                         T_back_list.append(T_back_data * s_unit)
                     except Exception as e1:
-                        print(e1)
-            elif fname.endswith('.xlsx'):
+                        fileinfo = fileinfo + 'line ' + str(i+1) + ' ' + lines[i] + ' cause:' + str(e1) + '\n' 
+            elif fname.endswith('.xlsx') or fname.endswith('.xls'):
                 df = pd.read_excel(fname,header=None,usecols=[m_index, v_index,s_index])
                 data = df.apply(pd.to_numeric, errors='coerce').dropna(how='any')
-                m_back_list = np.array(data[m_index] * m_unit, dtype=np.float64)
-                V_back_list = np.array(data[v_index] * v_unit, dtype=np.float64)
-                T_back_list = np.array(data[s_index] * s_unit, dtype=np.float64)
+                m_back_list = np.array(data[m_index] * m_unit, dtype=np.float64)*indentationCoefficient
+                V_back_list = np.array(data[v_index] * v_unit, dtype=np.float64)*appliedCoefficient
+                T_back_list = np.array(data[s_index] * s_unit, dtype=np.float64)*timeCoefficient
             Datas.append(SuccessData(n, retracttime, sensitivity, springConstant, m_back_list, V_back_list, T_back_list,
                                      last_retract_index))
         except Exception as e:
-            print(e)
+            fileinfo = fileinfo + str(e)
+        FileWriter.write_log_info(fname,fileinfo)
     return Datas
-
 

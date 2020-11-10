@@ -1048,12 +1048,26 @@
           </item>
          </layout>
         </item>
-        <item alignment="Qt::AlignRight">
-         <widget class="QCheckBox" name="checkBoxApplyToAll">
-          <property name="text">
-           <string>Apply To All</string>
-          </property>
-         </widget>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_8">
+          <item>
+           <widget class="QCheckBox" name="checkBoxApplyToAll">
+            <property name="layoutDirection">
+             <enum>Qt::RightToLeft</enum>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="checkBoxApplyToAllTips">
+            <property name="text">
+             <string>Apply To All</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
          <widget class="Line" name="line_2">
@@ -1157,7 +1171,7 @@
      <x>0</x>
      <y>0</y>
      <width>1125</width>
-     <height>26</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

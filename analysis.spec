@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['analysis.py'],
-             pathex=['D:\\py\\20190829'],
+             pathex=['C:\\Users\\maybe\\Desktop\\SouthernUSAFM'],
              binaries=[],
              datas=[],
              hiddenimports=['sklearn.utils._cython_blas'],

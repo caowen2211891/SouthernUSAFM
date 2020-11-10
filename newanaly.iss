@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "analysis"
-#define MyAppVersion "1.0.8"
+#define MyAppVersion "1.0.10"
 #define MyAppPublisher "My Company, Inc."
 #define MyAppURL "http://www.example.com/"
 #define MyAppExeName "analysis.exe"
@@ -22,9 +22,9 @@ DefaultDirName={autopf}\{#MyAppName}
 DisableProgramGroupPage=yes
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
-OutputDir=D:\py\20190829\out
+OutputDir=C:\Users\maybe\Desktop\SouthernUSAFM\out
 OutputBaseFilename=analysis
-SetupIconFile=D:\py\20190829\main.ico
+SetupIconFile=C:\Users\maybe\Desktop\SouthernUSAFM\main.ico
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
@@ -36,9 +36,9 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "D:\py\20190829\dist\analysis\analysis.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\py\20190829\build\analysis\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\py\20190829\dist\analysis\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\maybe\Desktop\SouthernUSAFM\dist\analysis\analysis.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\maybe\Desktop\SouthernUSAFM\build\analysis\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\maybe\Desktop\SouthernUSAFM\dist\analysis\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
