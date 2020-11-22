@@ -14,6 +14,7 @@ class ConfigDailog(QDialog,Ui_Form):
     colorData = {}
     color = '#000000'
 
+
     t = 0
     al = 0
     id = 0
@@ -55,6 +56,14 @@ class ConfigDailog(QDialog,Ui_Form):
         self.t_unitcomboBox.setCurrentText(self.cf.getTimeUnit())
         self.al_unitcomboBox.setCurrentText(self.cf.getFdUnit())
         self.id_unitcomboBox.setCurrentText(self.cf.getHeightUnit())
+        if self.cf.getFdUnit() == 'uV' or self.cf.getFdUnit() == 'V':
+            self.SpringConstantEdit.setEnabled(True)
+            self.SensitivityEdit.setEnabled(True)
+        else :
+            self.SpringConstantEdit.setEnabled(False)
+            self.SensitivityEdit.setEnabled(False)
+        
+        self.al_unitcomboBox.currentTextChanged.connect(self.on_al_unitcomboBox_select)
 
         self.colorData['DataLine'] = self.cf.getDataLineColor()
         self.colorData['RetractPoint'] = self.cf.getRetractPointColor()
@@ -69,9 +78,13 @@ class ConfigDailog(QDialog,Ui_Form):
         self.time_coefficient_edit.setText(self.cf.getTimeCoefficient())
         self.applied_coefficient_edit.setText(self.cf.getAppliedCoefficient())
         self.indentation_coefficient_edit.setText(self.cf.getIndentationCoefficient())
+        self.SpringConstantEdit.setText(self.cf.getSpringConstant())
+        self.SensitivityEdit.setText(self.cf.getSensitivity())
         self.time_coefficient_edit.setValidator(QDoubleValidator())
         self.applied_coefficient_edit.setValidator(QDoubleValidator())
         self.indentation_coefficient_edit.setValidator(QDoubleValidator())
+        self.SpringConstantEdit.setValidator(QDoubleValidator())
+        self.SensitivityEdit.setValidator(QDoubleValidator())
 
         self.buttonBox.accepted.connect(self.ok)
         self.buttonBox.rejected.connect(self.cancel)
@@ -87,6 +100,13 @@ class ConfigDailog(QDialog,Ui_Form):
         elif text == 'CountPoint':
             self.colorButton.setStyleSheet('QWidget {background-color:%s}' % self.cf.getCountPointColor())
 
+    def on_al_unitcomboBox_select(self,arg):
+        if arg == 'uV' or arg == 'V':
+            self.SpringConstantEdit.setEnabled(True)
+            self.SensitivityEdit.setEnabled(True)
+        else:
+            self.SpringConstantEdit.setEnabled(False)
+            self.SensitivityEdit.setEnabled(False)
 
     def colorClick(self):
         col = QColorDialog.getColor()
@@ -140,6 +160,8 @@ class ConfigDailog(QDialog,Ui_Form):
         self.cf.setTimeCoefficient(str(np.array(self.time_coefficient_edit.text(), dtype=np.float64)))
         self.cf.setAppliedCoefficient(str(np.array(self.applied_coefficient_edit.text(), dtype=np.float64)))
         self.cf.setIndentationCoefficient(str(np.array(self.indentation_coefficient_edit.text(), dtype=np.float64)))
+        self.cf.setSpringConstant(str(np.array(self.SpringConstantEdit.text(), dtype=np.float64)))
+        self.cf.setSensitivity(str(np.array(self.SensitivityEdit.text(), dtype=np.float64)))
 
 
         self.cf.setAsDefault(True)

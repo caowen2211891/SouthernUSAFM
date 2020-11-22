@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>431</width>
-    <height>317</height>
+    <height>335</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -71,7 +71,17 @@
       </widget>
      </item>
      <item>
-      <layout class="QGridLayout" name="gridLayout_2" columnstretch="2,1,1,1">
+      <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0,0,0,0,0" columnstretch="2,1,1,1">
+       <item row="0" column="2">
+        <widget class="QLabel" name="label_9">
+         <property name="text">
+          <string>Coefficient</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="1">
         <widget class="QLabel" name="label_7">
          <property name="frameShadow">
@@ -85,8 +95,8 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_4">
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_8">
          <property name="minimumSize">
           <size>
            <width>100</width>
@@ -94,14 +104,61 @@
           </size>
          </property>
          <property name="text">
-          <string>Time:</string>
+          <string>Height of tip</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </item>
-       <item row="2" column="3">
+       <item row="2" column="2">
+        <widget class="QLineEdit" name="indentation_coefficient_edit">
+         <property name="text">
+          <string>1</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_6">
+         <property name="minimumSize">
+          <size>
+           <width>100</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Applied Load:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QComboBox" name="t_comboBox">
+         <property name="currentText">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Unit</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QComboBox" name="al_comboBox">
+         <property name="currentIndex">
+          <number>-1</number>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="3">
         <widget class="QComboBox" name="al_unitcomboBox">
          <item>
           <property name="text">
@@ -113,9 +170,40 @@
            <string>uN</string>
           </property>
          </item>
+         <item>
+          <property name="text">
+           <string>V</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>uV</string>
+          </property>
+         </item>
         </widget>
        </item>
-       <item row="3" column="3">
+       <item row="2" column="1">
+        <widget class="QComboBox" name="id_comboBox">
+         <property name="currentIndex">
+          <number>-1</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3">
+        <widget class="QComboBox" name="t_unitcomboBox">
+         <item>
+          <property name="text">
+           <string>s</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ms</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="2" column="3">
         <widget class="QComboBox" name="id_unitcomboBox">
          <item>
           <property name="text">
@@ -144,36 +232,8 @@
          </item>
         </widget>
        </item>
-       <item row="2" column="2">
-        <widget class="QLineEdit" name="applied_coefficient_edit">
-         <property name="text">
-          <string>1</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QComboBox" name="al_comboBox">
-         <property name="currentIndex">
-          <number>-1</number>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QComboBox" name="id_comboBox">
-         <property name="currentIndex">
-          <number>-1</number>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_11">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_8">
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_4">
          <property name="minimumSize">
           <size>
            <width>100</width>
@@ -181,37 +241,7 @@
           </size>
          </property>
          <property name="text">
-          <string>Height of tip</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="3">
-        <widget class="QComboBox" name="t_unitcomboBox">
-         <item>
-          <property name="text">
-           <string>s</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>ms</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_6">
-         <property name="minimumSize">
-          <size>
-           <width>100</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Applied Load:</string>
+          <string>Time:</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -228,37 +258,51 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QComboBox" name="t_comboBox">
-         <property name="currentText">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="3">
-        <widget class="QLabel" name="label_5">
-         <property name="text">
-          <string>Unit</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
        <item row="3" column="2">
-        <widget class="QLineEdit" name="indentation_coefficient_edit">
+        <widget class="QLineEdit" name="applied_coefficient_edit">
          <property name="text">
           <string>1</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="2">
-        <widget class="QLabel" name="label_9">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_11">
          <property name="text">
-          <string>Coefficient</string>
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_12">
+         <property name="text">
+          <string>SpringConstant</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="label_13">
+         <property name="text">
+          <string>Sensitivity</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="2">
+        <widget class="QLineEdit" name="SpringConstantEdit">
+         <property name="text">
+          <string>1</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="2">
+        <widget class="QLineEdit" name="SensitivityEdit">
+         <property name="text">
+          <string>1</string>
          </property>
         </widget>
        </item>

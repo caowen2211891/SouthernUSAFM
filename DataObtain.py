@@ -35,6 +35,30 @@ class SuccessData(object):
 
 cf = ConfigData()
 
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        pass
+ 
+    try:
+        import unicodedata
+        unicodedata.numeric(s)
+        return True
+    except (TypeError, ValueError):
+        pass
+ 
+    return False
+
+def getFirstNumber(s):
+    l = s.split(' ')
+    for i in l:
+        if is_number(i):
+            return i
+    return -1
+
+
 def getData(files):
     list = files
     # 返回的左下列表的数据
@@ -86,7 +110,12 @@ def getData(files):
                 lines = linecache.getlines(fname)
                 line_len = len(lines)
                 for i in range(line_len):
-                    values = lines[i].split(cf.getDefalutSplit())
+                    linedata = lines[i].lower()
+                    if sensitivity == -1 and 'sensitivity' in linedata:
+                        sensitivity = getFirstNumber(linedata)
+                    if springConstant == -1 and 'springconstant' in linedata:
+                        springConstant = getFirstNumber(linedata)
+                    values = linedata.split(cf.getDefalutSplit())
                     try:
                         m_back_data = np.array(values[m_index], dtype=np.float64) *indentationCoefficient
                         V_back_data = np.array(values[v_index], dtype=np.float64) *appliedCoefficient
@@ -105,7 +134,7 @@ def getData(files):
             Datas.append(SuccessData(n, retracttime, sensitivity, springConstant, m_back_list, V_back_list, T_back_list,
                                      last_retract_index))
         except Exception as e:
+            print(e)
             fileinfo = fileinfo + str(e)
         FileWriter.write_log_info(fname,fileinfo)
     return Datas
-

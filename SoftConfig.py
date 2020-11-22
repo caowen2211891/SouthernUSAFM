@@ -69,9 +69,9 @@ class ConfigData(object):
 
     def getFDUnitNo(self):
         unit = self.getFdUnit()
-        if unit == 'N':
+        if unit == 'N' or unit == 'V':
             return 1
-        elif unit == 'uN':
+        elif unit == 'uN' or unit == 'uV':
             return 1e-6
 
 
@@ -133,4 +133,18 @@ class ConfigData(object):
     def setIndentationCoefficient(self,coefficient):
         self.settings.setValue('indentation_coefficient', coefficient)
 
+    def getSpringConstant(self):
+        return self.settings.value('SpringConstant', "1")
+
+    def setSpringConstant(self,SpringConstant):
+        self.settings.setValue('SpringConstant', SpringConstant)
+
+    def getSensitivity(self):
+        return self.settings.value('Sensitivity', "1")
+
+    def setSensitivity(self,Sensitivity):
+        self.settings.setValue('Sensitivity', Sensitivity)
+
+    def isForceMode(self):
+        return self.getFdUnit() == 'N' or self.getFdUnit() == 'uN'
 

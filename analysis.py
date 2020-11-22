@@ -477,7 +477,7 @@ class MainTool(QMainWindow,Ui_MainWindow):
 
 # 获取force
     def getForce(self,v0,vt):
-        return (vt-v0)*self.sensitivity*self.springConstant
+        return (vt-v0)*self.data.sensitivity*self.data.springConstant
 # 获取force
     def getForceData(self,vt):
         return self.getForce(self.v0, vt)
@@ -514,7 +514,7 @@ class MainTool(QMainWindow,Ui_MainWindow):
             return
         
         if self.mode == 1:
-            afm = calculate_AFM.compute(self.sensitivity, self.springConstant, self.radius,self.data.T_list[before:index],self.data.T_list[index:after],self.data.m_list[before:index],self.data.m_list[index:after], self.data.V_list[before:index],self.data.V_list[index:after])
+            afm = calculate_AFM.compute(self.sensitivity, self.data.springConstant, self.radius,self.data.T_list[before:index],self.data.T_list[index:after],self.data.m_list[before:index],self.data.m_list[index:after], self.data.V_list[before:index],self.data.V_list[index:after])
             E = 2 * self.poissonvalue * afm
             self.es = E
 
@@ -695,7 +695,7 @@ class MainTool(QMainWindow,Ui_MainWindow):
                 if self.sensitivity is None or self.sensitivity <= 0:
                     self.showErrorDialog('Should Set Sensitivity')
                     return
-                if self.springConstant is None or self.springConstant <= 0:
+                if self.data.springConstant is None or self.data.springConstant <= 0:
                     self.showErrorDialog('Should Set SpringConstant')
                     return
                 self.FDFrocelist = []
@@ -733,15 +733,46 @@ class MainTool(QMainWindow,Ui_MainWindow):
                     self.retract_index = 0
                 if not self.checkBoxApplyToAll.isChecked():
                     self.retract_index = 0
-                self.initDataXY()
-                self.draw_t_m(True)
-                if self.retract_index>0:
-                    self.setindexdata()
-                    self.compute_s_data()
-                    self.calculateResult()
+                if self.cf.isForceMode():
+                    self.finalSetResult()
+                else:
+                    self.data.springConstant = np.array(self.data.springConstant, dtype=np.float64)
+                    self.data.sensitivity = np.array(self.data.sensitivity, dtype=np.float64)
+                    if str(self.data.springConstant) == self.cf.getSpringConstant() and str(self.data.sensitivity) == self.cf.getSensitivity():
+                        self.updateForceModeData()
+                        self.finalSetResult()
+                    else:
+                        self.show_spring_contant_confirm()
         else:
             self.show_no_data_warning()
-    
+
+    def updateForceModeData(self):
+        self.v0 = 0
+        for index in range(len(self.data.V_list)):
+            self.data.V_list[index] = self.getForceData(self.data.V_list[index])
+
+    def show_spring_contant_confirm(self):
+        title = 'Notice'
+        content = 'The detected \n springConstant=' + str(self.data.springConstant) + ' sensitivity=' + str(self.data.sensitivity) +' Use or not?'
+        button = QMessageBox.warning(self,title,content,QMessageBox.Yes|QMessageBox.No,QMessageBox.Yes)
+        if button == QMessageBox.Yes:
+            self.cf.setSpringConstant(str(self.data.springConstant))
+            self.cf.setSensitivity(str(self.data.sensitivity))
+        else:
+            self.data.springConstant = np.array(self.cf.getSpringConstant(), dtype=np.float64)
+            self.data.sensitivity = np.array(self.cf.getSensitivity(), dtype=np.float64)
+        self.updateForceModeData()
+        self.finalSetResult()
+
+    def finalSetResult(self):
+        self.initDataXY()
+        self.draw_t_m(True)
+        if self.retract_index>0:
+            self.setindexdata()
+            self.compute_s_data()
+            self.calculateResult()
+
+
     def showErrorDialog(self,msg):
         QMessageBox.information(self,'Information', str(msg)) 
 
@@ -808,8 +839,6 @@ class MainTool(QMainWindow,Ui_MainWindow):
         if arg == 'Time':
             return self.data.T_list
         elif arg == 'Froce':
-            if self.v0 is not None:
-               return self.FDFrocelist
             return self.data.V_list
         elif arg == 'Height':
             return self.data.m_list
