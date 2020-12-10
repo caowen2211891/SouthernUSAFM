@@ -666,8 +666,8 @@ class MainTool(QMainWindow,Ui_MainWindow):
                 selectAc = cmenu.addAction("Set Retract Point")
                 # if self.v0 is None and self.xlabel == 'Time (s)':
                 #     selectFD = cmenu.addAction("Set Applied Load Start Point")
-            if self.v0 is not None and self.xlabel == 'Time (s)':
-                resetV0 = cmenu.addAction("Reset Applied Load Start Point")
+            # if self.v0 is not None and self.xlabel == 'Time (s)':
+            #     resetV0 = cmenu.addAction("Reset Applied Load Start Point")
             if self.init_x_min is not None:
                 x_min, x_max = self.ax_tm.get_xlim()
                 y_min, y_max = self.ax_tm.get_ylim()
