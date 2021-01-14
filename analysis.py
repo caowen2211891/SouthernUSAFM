@@ -1207,7 +1207,7 @@ class MainTool(QMainWindow,Ui_MainWindow):
 
 
 if __name__ == '__main__':
-    t = time.localtime()
+    t = time.localtime() 
     print(t.tm_min,'分', t.tm_sec, '秒')
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     app = QApplication(sys.argv)
