@@ -33,7 +33,7 @@ from BubbleTips import BubbleLabel
 
 from matplotlib.ticker import ScalarFormatter
 import cgitb
-
+import time
 
 class WorkThread(QThread):
 
@@ -116,6 +116,8 @@ class MainTool(QMainWindow,Ui_MainWindow):
 
     def __init__(self,name):
         super(MainTool,self).__init__()
+        t = time.localtime()
+        print(t.tm_min,'分', t.tm_sec, '秒')
         self.fileName = name
         self.cf = ConfigData()
         self.listitems.append(name)
@@ -244,6 +246,9 @@ class MainTool(QMainWindow,Ui_MainWindow):
         self.setAcceptDrops(True)
 
         self.show()
+
+        t = time.localtime()
+        print(t.tm_min,'分', t.tm_sec, '秒')
         if self.cf.isAsDefault():
             if str(self.settings.value('isOpenFile', True)).lower() == 'true':
                 self.open()
@@ -1202,6 +1207,9 @@ class MainTool(QMainWindow,Ui_MainWindow):
 
 
 if __name__ == '__main__':
+    # self.showTime()
+    t = time.localtime()
+    print(t.tm_min,'分', t.tm_sec, '秒')
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     app = QApplication(sys.argv)
     pixmap = QPixmap("res/luncher.png")
