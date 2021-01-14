@@ -58,6 +58,8 @@ def getFirstNumber(s):
             return i
     return -1
 
+# def backProgress(callback):
+#     if()
 
 def getData(files):
     list = files
@@ -81,7 +83,7 @@ def getData(files):
     timeCoefficient = np.array(cf.getTimeCoefficient(), dtype=np.float64)
     appliedCoefficient = np.array(cf.getAppliedCoefficient(), dtype=np.float64)
     indentationCoefficient = np.array(cf.getIndentationCoefficient(), dtype=np.float64)
-    
+    print("Completed",0,"%")
     for n in range(len(list)):
         fname = list[n]
         fileinfo = 'file: ' + os.path.basename(fname)+ '\n'
@@ -125,8 +127,20 @@ def getData(files):
                         T_back_list.append(T_back_data * s_unit)
                     except Exception as e1:
                         fileinfo = fileinfo + 'line ' + str(i+1) + ' ' + lines[i] + ' cause:' + str(e1) + '\n' 
+                    if i%1 == 0 or i==line_len:
+                        print("Completed",int(round(float(i)/line_len * 100)),"%")
             elif fname.endswith('.xlsx') or fname.endswith('.xls'):
-                df = pd.read_excel(fname,header=None,usecols=[m_index, v_index,s_index])
+                lines_number = sum(1 for line in open(fname))
+                lines_in_chunk = 10 # I don't know what size is better
+                counter = 0
+                completed = 0
+                df = pd.read_excel(fname,chunksize=lines_in_chunk,header=None,usecols=[m_index, v_index,s_index])
+                for chunk in df:
+                    counter += lines_in_chunk
+                    new_completed = int(round(float(counter)/lines_number * 100))
+                    if (new_completed > completed): 
+                        completed = new_completed
+                        print("Completed",completed,"%")
                 data = df.apply(pd.to_numeric, errors='coerce').dropna(how='any')
                 m_back_list = np.array(data[m_index] * m_unit, dtype=np.float64)*indentationCoefficient
                 V_back_list = np.array(data[v_index] * v_unit, dtype=np.float64)*appliedCoefficient
