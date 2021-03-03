@@ -1157,6 +1157,20 @@ class MainTool(QMainWindow,Ui_MainWindow):
         self.setfileIndexAandCount()
         self.settings.setValue('isOpenFile', True)
 
+    def show_TxTFileMaySpstrTab(self,file,SplitResult):
+        settingSplit = SplitResult[0]
+        fileSplit = SplitResult[1]
+        tips = ''
+        if fileSplit == '\t':
+            tips = 'TAB'
+        elif fileSplit == ' ':
+            tips = 'Space'
+        title = 'Notice'
+        content = 'It is detected that the separator of data in the file may be '+tips+'. Do you want to use '+tips+' to separate?'
+        button = QMessageBox.warning(self,title,content,QMessageBox.Yes|QMessageBox.No,QMessageBox.Yes)
+        if button == QMessageBox.Yes:
+            self.cf.setDefalutSplit(fileSplit)
+        self.startaddData(file)
 
 
     def inputdata(self,file):
@@ -1164,6 +1178,13 @@ class MainTool(QMainWindow,Ui_MainWindow):
         self.setWindowTitle(file)
         self.detail = None
         self.curfilename = file
+        SplitResult = ['','']
+        if DataObtain.mayShouldChangeSpstr(file,SplitResult):
+            self.show_TxTFileMaySpstrTab(file,SplitResult)
+        else:    
+            self.startaddData(file)
+
+    def startaddData(self,file):
         self.workThread.addData([file])
         self.workThread.start()
         self.loading = LoadingDailog(self)

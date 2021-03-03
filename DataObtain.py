@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 
 import linecache
-
+import chardet
 import numpy as np
 import pandas as pd
 import FileWriter
 import os
 from SoftConfig import ConfigData
+
+from datetime import datetime
+import time
+from decimal import Decimal
 
 
 class SuccessData(object):
@@ -58,6 +62,36 @@ def getFirstNumber(s):
             return i
     return -1
 
+def getEncode(fname):
+    with open(fname,'rb') as fo:
+        encode = chardet.detect(fo.readline())['encoding']
+    return encode
+
+def getTxTFileMaySpstr(fname):
+    encode = getEncode(fname)
+    df = pd.read_csv(fname,sep='@',error_bad_lines=False,header=None,encoding=encode).dropna()
+    floatReg = "(\\-|\\+)?\\d+(\\.\\d+)?"
+    floatRegs= [floatReg,floatReg,floatReg]
+    tab= df[df[0].str.contains('\t'.join(floatRegs))]
+    space = df[df[0].str.contains(' '.join(floatRegs))]
+    if tab.shape[0] > 50:
+        return '\t'
+    elif space.shape[0] > 50:
+        return ' '
+    return False
+
+def mayShouldChangeSpstr(fname,result):
+    if fname.endswith('.txt'):
+        maySpstr = getTxTFileMaySpstr(fname)
+        if cf.getDefalutSplit() == '\t' and maySpstr == ' ':
+            result[0] = '\t'
+            result[1] = maySpstr
+            return True
+        elif cf.getDefalutSplit() == ' ' and maySpstr == '\t':
+            result[0] = ' '
+            result[1] = maySpstr
+            return True
+    return False
 
 def getData(files):
     list = files
@@ -105,32 +139,41 @@ def getData(files):
             V_back_list = []
             sensitivity = -1
             springConstant = -1
+            start = datetime.now()
 
-            if fname.endswith('.txt'):
-                lines = linecache.getlines(fname)
-                line_len = len(lines)
-                for i in range(line_len):
-                    linedata = lines[i].lower()
-                    if sensitivity == -1 and 'sensitivity' in linedata:
-                        sensitivity = getFirstNumber(linedata)
-                    if springConstant == -1 and 'springconstant' in linedata:
-                        springConstant = getFirstNumber(linedata)
-                    values = linedata.split(cf.getDefalutSplit())
-                    try:
-                        m_back_data = np.array(values[m_index], dtype=np.float64) *indentationCoefficient
-                        V_back_data = np.array(values[v_index], dtype=np.float64) *appliedCoefficient
-                        T_back_data = np.array(values[s_index], dtype=np.float64) *timeCoefficient
-                        m_back_list.append(m_back_data * m_unit)
-                        V_back_list.append(V_back_data * v_unit)
-                        T_back_list.append(T_back_data * s_unit)
-                    except Exception as e1:
-                        fileinfo = fileinfo + 'line ' + str(i+1) + ' ' + lines[i] + ' cause:' + str(e1) + '\n' 
-            elif fname.endswith('.xlsx') or fname.endswith('.xls'):
+            if fname.endswith('.xlsx') or fname.endswith('.xls'):
+                df = pd.read_excel(fname,header=None).dropna()
+                sensitivity_df = df[df[0].str.contains("sensitivity")]
+                if sensitivity_df.shape[0] > 0:
+                    sensitivity = getFirstNumber(sensitivity_df.iloc[0,0])
+                springconstant_df = df[df[0].str.contains("springConstant")]
+                if springconstant_df.shape[0] > 0:
+                    springConstant = getFirstNumber(springconstant_df.iloc[0,0])
+                
                 df = pd.read_excel(fname,header=None,usecols=[m_index, v_index,s_index])
                 data = df.apply(pd.to_numeric, errors='coerce').dropna(how='any')
                 m_back_list = np.array(data[m_index] * m_unit, dtype=np.float64)*indentationCoefficient
                 V_back_list = np.array(data[v_index] * v_unit, dtype=np.float64)*appliedCoefficient
                 T_back_list = np.array(data[s_index] * s_unit, dtype=np.float64)*timeCoefficient
+
+            elif fname.endswith('.txt'):
+                encode = getEncode(fname)
+                df = pd.read_csv(fname,sep='@',error_bad_lines=False,header=None,encoding=encode).dropna()
+                sensitivity_df = df[df[0].str.contains("sensitivity")]
+                if sensitivity_df.shape[0] > 0:
+                    sensitivity = getFirstNumber(sensitivity_df.iloc[0,0])
+                springconstant_df = df[df[0].str.contains("springConstant")]
+                if springconstant_df.shape[0] > 0:
+                    springConstant = getFirstNumber(springconstant_df.iloc[0,0])
+                    
+                df = pd.read_csv(fname,sep=cf.getDefalutSplit(),error_bad_lines=False,header=None,encoding=encode)
+                data = df.apply(pd.to_numeric, errors='coerce').dropna(how='any')
+                m_back_list = np.array(data[m_index] * m_unit, dtype=np.float64)*indentationCoefficient
+                V_back_list = np.array(data[v_index] * v_unit, dtype=np.float64)*appliedCoefficient
+                T_back_list = np.array(data[s_index] * s_unit, dtype=np.float64)*timeCoefficient
+            else:
+                print("not support")
+            print("cost: "+str(datetime.now() - start) + "")
             Datas.append(SuccessData(n, retracttime, sensitivity, springConstant, m_back_list, V_back_list, T_back_list,
                                      last_retract_index))
         except Exception as e:
