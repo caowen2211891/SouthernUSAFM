@@ -31,7 +31,7 @@ from SoftConfig import ConfigData
 from UI_Main import Ui_MainWindow
 from BubbleTips import BubbleLabel
 
-from matplotlib.ticker import ScalarFormatter
+import matplotlib.ticker as mtick
 import cgitb
 
 
@@ -446,6 +446,7 @@ class MainTool(QMainWindow,Ui_MainWindow):
         plt.savefig('D:\est.png')
 
     def build_tm(self):
+        plt.style.use("dark_background") 
         self.fig_tm, self.ax_tm = plt.subplots()
         self.fig_tm.subplots_adjust(left=0.15,right=0.95)
         self.canvas_tm = FigureCanvas(self.fig_tm)
@@ -987,10 +988,11 @@ class MainTool(QMainWindow,Ui_MainWindow):
             self.ax_tm.grid()
             self.clear_ax_lines()
             self.ax_tm.set(xlabel=self.xlabel, ylabel=self.ylabel, title=self.xlabel + '-' + self.ylabel)
-            y_formatter = ScalarFormatter(useOffset=True)
-            y_formatter.set_powerlimits((-2,2))
-            self.ax_tm.yaxis.set_major_formatter(y_formatter)
-            self.ax_tm.xaxis.set_major_formatter(y_formatter)
+            # y_formatter = ScalarFormatter(useOffset=True)
+            # y_formatter.set_powerlimits((-2,2))
+            # ax.yaxis.set_major_formatter（mtick.FormatStrFormatter('%.2e'))
+            self.ax_tm.yaxis.set_major_formatter(mtick.FormatStrFormatter('%.1e'))
+            # self.ax_tm.xaxis.set_major_formatter(mtick.FormatStrFormatter('%.1e'))
             self.ax_tm_mainline, = self.ax_tm.plot(self.xdata, self.ydata, 'o', markersize=2, color=self.cf.getDataLineColor())
             x_min, x_max = self.ax_tm.get_xlim()
             y_min, y_max = self.ax_tm.get_ylim()
@@ -1003,7 +1005,7 @@ class MainTool(QMainWindow,Ui_MainWindow):
             # annotate
             self.annot_tm = self.ax_tm.annotate("",xy=(0,0), xytext=(-50, 50),
                                 textcoords='offset pixels',
-                                bbox=dict(boxstyle="round",fc="#7eff14"),
+                                # bbox=dict(boxstyle="round",fc="#7eff14"),
                                 arrowprops=dict(arrowstyle="->")
                                 )
             self.annot_tm.set_visible(False)
