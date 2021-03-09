@@ -23,16 +23,19 @@ import FileWriter,calculate_AFM
 import DataObtain
 import calculate_FD
 from Config_Dailog import ConfigDailog
-from DataBean import Detail
+from DataBean import Detail,ResultData,TableItem
 from Detail_Dailog import DetailDailog
 from Loading_Dailog import LoadingDailog
-from Result_Dailog import RusultDailog
 from SoftConfig import ConfigData
 from UI_Main import Ui_MainWindow
-from BubbleTips import BubbleLabel
 
 import matplotlib.ticker as mtick
 import cgitb
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+# from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QItemDelegate, QPushButton, QTableView, QTableWidget,QWidget)
+
+from PyQt5.QtWidgets import QWidget,QToolButton,QHBoxLayout,QHeaderView, QTableWidgetItem, QAbstractItemView, QTableView, QDialog,QPushButton
 
 
 class WorkThread(QThread):
@@ -51,38 +54,27 @@ class WorkThread(QThread):
         datas = DataObtain.getData(self.listitems)
         self.successSignal.emit(datas)
 
-class ResultData(object):
-
-    """docstring for SuccessData"""
-
-    def __init__(self,filename,retractindex,sensitivity,springConstant,beforeIndext,afterIndex,E):
-
-        super(ResultData, self).__init__()
-        self.filename = filename
-        self.retractindex = retractindex
-        self.sensitivity = sensitivity
-        self.springConstant = springConstant
-        self.beforeIndext = beforeIndext
-        self.afterIndex = afterIndex
-        self.E = E
-
 class MainTool(QMainWindow,Ui_MainWindow):
 
     workThread = WorkThread()
     settings = QSettings("amf","amf")
     cf = ''
     detail = None
-
-    listitems = []
+    # 文件名列表
     filelist = []
+    # 文件行列表
+    tableItems = {}
+    tableItemPositions = {}
+    # 结果列表
     resultlist = collections.OrderedDict()
-    fileindex = 0
+
+    curTableItem = None
 
     curfilename = ''
     curE = ''
 
     init_x_min = None
-
+    # 源数据列表
     data = None
     ax_tm_mainline = None
     annot_tm = None
@@ -118,11 +110,105 @@ class MainTool(QMainWindow,Ui_MainWindow):
         super(MainTool,self).__init__()
         self.fileName = name
         self.cf = ConfigData()
-        self.listitems.append(name)
         self.setupUi(self)
         self.initUI()
 
+    def initInputFileTable(self):
+        self.tableWidget.setColumnCount(4)
+        self.tableWidget.setShowGrid(False)
+        self.tableWidget.setHorizontalHeaderLabels(['Option','NO.','Filename','Result'])
+        self.tableWidget.setColumnWidth(0,50)
+        self.tableWidget.setColumnWidth(1,30)
+        self.tableWidget.setColumnWidth(2,150)
+        self.tableWidget.setColumnWidth(3,150)
+        self.tableWidget.horizontalHeader().setVisible(True)
+        self.tableWidget.verticalHeader().setVisible(False)
+        # self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.tableWidget.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.tableWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.tableWidget.setEditTriggers(QTableView.NoEditTriggers)
+        self.tableWidget.cellDoubleClicked.connect(self.itemcellDoubleClicked)
+
+    def itemcellDoubleClicked(self,row,col):
+        for key,value in self.tableItemPositions.items():
+            if  value == row:
+                self.openData(value,key,self.tableItems[key])
+                break
+  
+
+    def optionbutton(self,position,id,tableItem):
+        widget=QWidget()
+        viewBtn = QToolButton(self)
+        resultOptBtn = QToolButton(self)
+        resultOptBtn.setStyleSheet(''' text-align : center''')
+        if tableItem.resultData is None:
+            resultOptBtn.setIcon(QIcon('res/pic/warning.png'))       
+        else:
+            viewBtn.setStyleSheet(''' text-align : center''')
+            viewBtn.setIcon(QIcon('res/pic/detail.png'))
+            viewBtn.clicked.connect(lambda: self.openDetail(position,id,tableItem))
+            if id in self.resultlist:
+                resultOptBtn.setIcon(QIcon('res/pic/minus.png'))
+                resultOptBtn.clicked.connect(lambda:self.removetableItemToResult(position,id,tableItem))
+            else:
+                resultOptBtn.setIcon(QIcon('res/pic/plus.png'))
+                resultOptBtn.clicked.connect(lambda:self.addtableItemToResult(position,id,tableItem))
+
+        hLayout = QHBoxLayout()
+        hLayout.addWidget(resultOptBtn)
+        hLayout.addWidget(viewBtn)
+        hLayout.setContentsMargins(1,1,1,1)
+        widget.setLayout(hLayout)
+        return widget
+
+    def openDetail(self,position,id,tableItem):
+        self.show_detail(tableItem.detail)
+
+    def addtableItemToResult(self,position,id,tableItem):
+        if tableItem.detail is None:
+            self.showErrorDialog("The file result is None")
+            return
+        self.resultlist.update({id: tableItem.detail})
+        self.showToast("Add file result:" + id)
+        self.showTableWidgetButton(position, id,tableItem)
+
+    def removetableItemToResult(self,position,id,tableItem):
+        self.resultlist.pop(id)
+        self.showToast("Remove file result:" + id)
+        self.showTableWidgetButton(position, id,tableItem)
+
+    def openData(self,position,id,tableItem):
+        self.inputdata(id)
+        self.showTableWidgetButton(position, id,tableItem)
+
+    def showTableWidgetButton(self,position,id,tableItem):
+        keyitem = QTableWidgetItem(os.path.basename(id))
+        if tableItem.resultData is not None and tableItem.resultData.E is not None :
+            valuesitem = QTableWidgetItem(str(tableItem.resultData.E))
+        else:
+            valuesitem = QTableWidgetItem('')
+        self.tableWidget.setItem(position,1,QTableWidgetItem(str(position+1)))
+        self.tableWidget.setItem(position,2,keyitem)
+        self.tableWidget.setItem(position,3,valuesitem)
+        self.tableWidget.setCellWidget(position, 0,self.optionbutton(position,id,tableItem))
+        
+
+
+    def setTableItems(self,tableItems):
+        l = len(tableItems)
+        self.tableWidget.clearContents()
+        self.tableWidget.setRowCount(l)
+        self.tableItemPositions.clear()
+        i = 0
+        for key,values in  tableItems.items():
+            self.showTableWidgetButton(i, key,values)
+            self.tableItemPositions[key]=i
+            i = i+1
+
+
     def initUI(self):
+
+        self.initInputFileTable()
 
         openFileAction = QAction(QIcon('res/pic/single.png'), '&Open', self)
         openFileAction.triggered.connect(self.open)
@@ -160,6 +246,10 @@ class MainTool(QMainWindow,Ui_MainWindow):
 
         helpMenu.addAction(helpAction)
 
+        self.toolButton_open.setDefaultAction(openFileAction)
+        self.toolButton_folder.setDefaultAction(openFolderAction)
+        self.toolButton_txt.setDefaultAction(exportAction)
+        self.toolButton_excel.setDefaultAction(exportexcelAction)
         self.ls = ['Time', 'Froce', 'Height']
         self.refresh_combo(self.ls)
         self.x_combo.currentTextChanged.connect(self.on_x_select)
@@ -168,9 +258,6 @@ class MainTool(QMainWindow,Ui_MainWindow):
         self.radius = np.array(self.radius_et.text(), dtype=np.float64) * 1e-6
 
         self.build_tm()
-
-        self.pushButton_2.clicked.connect(self.openResult)
-        self.calculateButton.clicked.connect(self.calculateResult)
 
         self.radius_et.setValidator(QDoubleValidator())
         self.prtip_et.setValidator(QDoubleValidator())
@@ -224,13 +311,8 @@ class MainTool(QMainWindow,Ui_MainWindow):
         self.radio_spher.toggled.connect(self.radiotoggle)
         self.radio_punch.toggled.connect(self.radiotoggle)
 
-        self.igonre.clicked.connect(self.next)
-        self.lastButton.clicked.connect(self.last)
-        self.add.clicked.connect(self.add_result)
-        self.pushButton.clicked.connect(self.show_detail)
-        self.label_32.setToolTip('Ac=C1*hc^2+C2*hc+C3*hc^0.5+C4*hc^0.25')
-        self.checkBoxApplyToAllTips.setToolTip('If checked,the next file will also be used the same point of time,\notherwise, use the first point')
 
+        self.label_32.setToolTip('Ac=C1*hc^2+C2*hc+C3*hc^0.5+C4*hc^0.25')      
         self.workThread.successSignal.connect(self.setResult)
 
         self.setWindowTitle(self.fileName)
@@ -252,6 +334,8 @@ class MainTool(QMainWindow,Ui_MainWindow):
         else:
             self.show_config()
 
+
+
     def compute_h(self):
         if self.radioselect == 0:
             # H=Pu/Ac
@@ -268,8 +352,6 @@ class MainTool(QMainWindow,Ui_MainWindow):
             if math.isclose(self.radius,0e-9,rel_tol=1e-9):
                 return
             self.hh = self.pu/(3.14159 * (self.radius**2))
-        self.label_h.setText(str('%.3e' % self.hh))
-
 
        # compute ROF
     def compute_s_data(self):
@@ -284,7 +366,9 @@ class MainTool(QMainWindow,Ui_MainWindow):
             self.data.T_list[before:index], self.data.T_list[index:after],
             self.data.m_list[before:index], self.data.m_list[index:after],
             self.data.V_list[before:index], self.data.V_list[index:after])
-        self.label_s.setText(str('%.3e' % self.s))
+        self.tableItems[self.curfilename].resultData.afterIndex = after
+        self.tableItems[self.curfilename].resultData.beforeIndext = before
+
 
 
     def compute_es(self,pr):
@@ -297,7 +381,6 @@ class MainTool(QMainWindow,Ui_MainWindow):
             self.showErrorDialog('Param Etip Is 0 ')
             return
         self.pk = (1-PRtip**2)/Etip
-        self.label_pk.setText(str('%.3e' % self.pk))
         # compute er
         if self.radioselect == 0:
             # Er = 3.14159 ^ 0.5 * 0.5 * S / (Ac ^ 0.5)
@@ -334,13 +417,11 @@ class MainTool(QMainWindow,Ui_MainWindow):
                 self.showErrorDialog('Param radius Is 0')
                 return
             self.er = self.s/(2 * self.radius)
-        self.label_er.setText(str('%.3e' % self.er))
         # compute es
         if 1/self.er-self.pk == 0:
             self.showErrorDialog('Param er == pk')
             return
         self.es = (1 - pr**2)/(1/self.er-self.pk)
-        self.lable_esdata.setText(str('%.3e' % self.es))
         return self.es
 
 
@@ -355,7 +436,6 @@ class MainTool(QMainWindow,Ui_MainWindow):
             self.radioselect = 2
             self.stackedWidget.setCurrentIndex(1)
         self.settings.setValue('radioselect', self.radioselect)
-        # self.calculateResult()
 
     def onradiusedit(self):
         temp = np.array(self.radius_et.text(), dtype=np.float64) * 1e-6
@@ -363,7 +443,6 @@ class MainTool(QMainWindow,Ui_MainWindow):
             self.radius = temp
             if self.data is None:
                 return
-            # self.calculateResult()
     
     def prtip_etedit(self):
         self.settings.setValue('prtip_et', str(np.array(self.prtip_et.text(), dtype=np.float64)))
@@ -378,22 +457,18 @@ class MainTool(QMainWindow,Ui_MainWindow):
     def onc1edit(self):
         self.c1 = np.array(self.et_c1.text(), dtype=np.float64)
         self.settings.setValue('et_c1', str(self.c1))
-        # self.calculateResult()
 
     def onc2edit(self):
         self.c2 = np.array(self.et_c2.text(), dtype=np.float64)
         self.settings.setValue('et_c2', str(self.c2))
-        # self.calculateResult()
 
     def onc3edit(self):
         self.c3 = np.array(self.et_c3.text(), dtype=np.float64)
         self.settings.setValue('et_c3', str(self.c3))
-        # self.calculateResult()
 
     def onc4edit(self):
         self.c4 = np.array(self.et_c4.text(), dtype=np.float64)
         self.settings.setValue('et_c4', str(self.c4))
-        # self.calculateResult()
 
     def onprsample_etediting(self,arg1):
         if arg1 == '':
@@ -529,28 +604,20 @@ class MainTool(QMainWindow,Ui_MainWindow):
             
             self.compute_h()
             self.detail = self.create_detail()
+            self.tableItems[self.curfilename].detail = self.detail
+            self.tableItems[self.curfilename].resultData.E = self.es
         ## auto add result()
-        
-        self.add_result()
+        self.resultlist.update({self.curfilename: self.detail})
+        self.showToast("Add file result:" + self.curfilename)
+        position = self.tableItemPositions[self.curfilename]
+        tableItem = self.tableItems[self.curfilename]
+        self.showTableWidgetButton(position,self.curfilename,tableItem)
         self.ingcalculateResult = False
 
 
     def showToast(self,text):
-        if hasattr(self, "_blabel"):
-            self._blabel.stop()
-            self._blabel.deleteLater()
-            del self._blabel
-        self._blabel = BubbleLabel()
-        self._blabel.setText(text)
-        self._blabel.show()
-        # self.toast = QMessageBox(self) ##Message Box that doesn't run
-        # self.toast.setIcon(QMessageBox.Information)
-        # self.toast.setText(text)
-        # self.toast.setWindowTitle("Information")
-        # self.toast.setStandardButtons(QMessageBox.Ok)
-        # self.toast.button(QMessageBox.Ok).animateClick(1500)       #1.5秒自动关闭
-        # self.toast.exec_()
-
+        self.label_tips.setText(text)
+        
     def on_move(self,event):
         if self.zooming:
             return
@@ -606,19 +673,10 @@ class MainTool(QMainWindow,Ui_MainWindow):
             else:
                 self.show = -1
 
-    def show_detail(self):
-        if self.detail is None:
-            return
-        self.detailDailog = DetailDailog(self, self.detail)
+    def show_detail(self,detail):
+        self.detailDailog = DetailDailog(self, detail)
         self.detailDailog.exec()
 
-    def openResult(self):
-        self.resultDailog = RusultDailog(self,self.resultlist)
-        self.resultDailog.resultSignal.connect(self.changeHistory)
-        self.resultDailog.exec()
-
-    def changeHistory(self,items):
-        self.resultlist = items
 
     v0 = None
     FDFrocelist = []
@@ -717,8 +775,6 @@ class MainTool(QMainWindow,Ui_MainWindow):
     def setindexdata(self):
         self.pu = self.data.V_list[self.retract_index]
         self.hu = self.data.m_list[self.retract_index]
-        self.label_pu.setText(str('%.3e' % self.pu))
-        self.label_hu.setText(str('%.3e' % self.hu))
         self.rt_et.setText(str(self.data.T_list[self.retract_index]))
 
     def setResult(self,datas):
@@ -730,9 +786,8 @@ class MainTool(QMainWindow,Ui_MainWindow):
                 self.show_no_data_warning()
             else:
                 self.data = datas[0]
+                self.tableItems[self.curfilename].resultData = ResultData(self.curfilename,self.data.retract_index,self.data.sensitivity,self.data.springConstant)
                 if self.retract_index+1 > lenth:
-                    self.retract_index = 0
-                if not self.checkBoxApplyToAll.isChecked():
                     self.retract_index = 0
                 if self.cf.isForceMode():
                     self.finalSetResult()
@@ -1085,58 +1140,25 @@ class MainTool(QMainWindow,Ui_MainWindow):
     def open_dir(self,dir):
         self.resultlist.clear()
         self.filelist.clear()
+        self.tableItems.clear()
         for i in os.listdir(dir):
             if os.path.splitext(i)[1] == '.txt' or os.path.splitext(i)[1] == '.xlsx' or os.path.splitext(i)[1] == '.xls':
-                self.filelist.append(os.path.join(dir, i))
+                path = os.path.join(dir, i.replace('/','\\'))
+                self.filelist.append(path)
+                self.tableItems[path] = TableItem(path)
         if len(self.filelist) <= 0:
             self.showErrorDialog('Not Found .txt .xlsx .xls File')
             return
+        self.setTableItems(self.tableItems)
         self.inputdata(self.filelist[0])
-        self.fileindex = 0
-        self.setfileIndexAandCount()
         self.settings.setValue('isOpenFile', False)
 
-    def next(self):
-        if self.data is None:
-            return
-        if len(self.filelist) <= self.fileindex +1:
-            self.showToast("It's the last one")
-            return
-        self.fileindex = self.fileindex + 1
-        self.setfileIndexAandCount()
-        self.inputdata(self.filelist[self.fileindex])
-
-    def last(self):
-        if self.data is None:
-            return
-        if self.fileindex == 0:
-            self.showToast("It's the first one")
-            return
-        self.fileindex = self.fileindex - 1
-        self.setfileIndexAandCount()
-        self.inputdata(self.filelist[self.fileindex])
-
-    def setfileIndexAandCount(self):
-        i = self.fileindex+1
-        count = len(self.filelist)
-        text = str(i) + '/'+str(count)
-        self.countindex.setText(text)
-
-    def add_result(self):
-        if self.detail is None:
-            return
-        if self.curfilename == '':
-            return
-        key = str(self.curfilename).replace('/','\\')
-        detail = self.create_detail()
-        self.resultlist.update({key: detail})
-        self.showToast('Add Result:' + key)
 
     def create_detail(self):
         if self.radioselect == 0:
-            detail = Detail(self.hh, self.s, self.es, self.pu, self.hu, self.hc, self.ac, None)
+            detail = Detail(self.hh, self.pk,self.er,self.s, self.es, self.pu, self.hu, self.hc, self.ac, None)
         else:
-            detail = Detail(self.hh, self.s, self.es, self.pu, self.hu, None, None, self.radius)
+            detail = Detail(self.hh, self.pk,self.er,self.s, self.es, self.pu, self.hu, None, None, self.radius)
         return detail
 
     def open(self):
@@ -1146,7 +1168,11 @@ class MainTool(QMainWindow,Ui_MainWindow):
             if len(files) <= 0:
                 self.showErrorDialog('Not Found .txt .xlsx .xls File')
                 return
-            self.open_file(files[0])
+            path = files[0].replace('/','\\')
+            self.tableItems.clear()
+            self.tableItems[path] = TableItem(path)
+            self.setTableItems(self.tableItems)
+            self.open_file(path)
 
     def open_file(self,filepath):
         self.resultlist.clear()
@@ -1155,8 +1181,6 @@ class MainTool(QMainWindow,Ui_MainWindow):
         self.inputdata(filepath)
         self.filelist.clear()
         self.filelist.append(filepath)
-        self.fileindex = 0
-        self.setfileIndexAandCount()
         self.settings.setValue('isOpenFile', True)
 
     def show_TxTFileMaySpstrTab(self,file,SplitResult):
@@ -1176,8 +1200,8 @@ class MainTool(QMainWindow,Ui_MainWindow):
 
 
     def inputdata(self,file):
-        file = file.replace('/','\\')
         self.setWindowTitle(file)
+        self.curTableItem = self.tableItems[file]
         self.detail = None
         self.curfilename = file
         SplitResult = ['','']

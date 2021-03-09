@@ -25,5 +25,7 @@ class DetailDailog(QDialog,Ui_Dialog):
         self.label_ac.setText(str(self.detail.ac))
         self.label_hc.setText(str(self.detail.hc))
         self.label_r.setText(str(self.detail.r))
+        self.label_pk.setText(str(self.detail.pk))
+        self.label_er.setText(str(self.detail.er))
 
 
