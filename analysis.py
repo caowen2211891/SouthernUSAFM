@@ -250,6 +250,7 @@ class MainTool(QMainWindow,Ui_MainWindow):
         self.toolButton_folder.setDefaultAction(openFolderAction)
         self.toolButton_txt.setDefaultAction(exportAction)
         self.toolButton_excel.setDefaultAction(exportexcelAction)
+        self.toolButton_setting.setDefaultAction(settingsAction)
         self.ls = ['Time', 'Froce', 'Height']
         self.refresh_combo(self.ls)
         self.x_combo.currentTextChanged.connect(self.on_x_select)
