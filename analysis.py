@@ -698,7 +698,7 @@ class MainTool(QMainWindow,Ui_MainWindow):
                     links.append(str(url.toLocalFile()))
                 if len(links) > 0:
                     filepath = links[0]
-                    if os.path.isfile(filepath) and (os.path.splitext(filepath)[1] == '.txt' or os.path.splitext(filepath)[1] == '.xlsx'):
+                    if os.path.isfile(filepath) and (os.path.splitext(filepath)[1] in ['.txt','.xlsx','.xls','.csv']):
                         self.open_file(filepath)
                     elif os.path.isdir(filepath):
                         self.open_dir(filepath)
@@ -1143,7 +1143,7 @@ class MainTool(QMainWindow,Ui_MainWindow):
         self.filelist.clear()
         self.tableItems.clear()
         for i in os.listdir(dir):
-            if os.path.splitext(i)[1] == '.txt' or os.path.splitext(i)[1] == '.xlsx' or os.path.splitext(i)[1] == '.xls':
+            if os.path.splitext(i)[1] in ['.txt','.xlsx','.xls','.csv'] :
                 path = os.path.join(dir, i.replace('/','\\'))
                 self.filelist.append(path)
                 self.tableItems[path] = TableItem(path)
@@ -1163,7 +1163,7 @@ class MainTool(QMainWindow,Ui_MainWindow):
         return detail
 
     def open(self):
-        files,ok1=QFileDialog.getOpenFileNames(self,"Select File",self.settings.value('select',"/"),"Text Files (*.txt *.xlsx *.xls)")
+        files,ok1=QFileDialog.getOpenFileNames(self,"Select File",self.settings.value('select',"/"),"Text Files (*.txt *.xlsx *.xls *.csv)")
         if(len(files) > 0):
             self.settings.setValue('select', os.path.abspath(os.path.dirname(files[0])+os.path.sep+"."))
             if len(files) <= 0:

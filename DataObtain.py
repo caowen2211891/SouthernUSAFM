@@ -69,7 +69,7 @@ def getEncode(fname):
 
 def getTxTFileMaySpstr(fname):
     encode = getEncode(fname)
-    df = pd.read_csv(fname,sep='@',error_bad_lines=False,header=None,encoding=encode).dropna()
+    df = pd.read_table(fname,sep='@',error_bad_lines=False,nrows=200,header=None,encoding=encode).dropna()
     floatReg = "(\\-|\\+)?\\d+(\\.\\d+)?"
     floatRegs= [floatReg,floatReg,floatReg]
     tab= df[df[0].str.contains('\t'.join(floatRegs))]
@@ -140,25 +140,24 @@ def getData(files):
             sensitivity = -1
             springConstant = -1
             start = datetime.now()
-
-            if fname.endswith('.xlsx') or fname.endswith('.xls'):
-                df = pd.read_excel(fname,header=None).dropna()
+            if os.path.splitext(fname)[1] in ['.xlsx','.xls']:
+                df = pd.read_excel(fname,header=None,nrows=2000).dropna()
                 sensitivity_df = df[df[0].str.contains("sensitivity")]
                 if sensitivity_df.shape[0] > 0:
                     sensitivity = getFirstNumber(sensitivity_df.iloc[0,0])
                 springconstant_df = df[df[0].str.contains("springConstant")]
                 if springconstant_df.shape[0] > 0:
                     springConstant = getFirstNumber(springconstant_df.iloc[0,0])
-                
+ 
                 df = pd.read_excel(fname,header=None,usecols=[m_index, v_index,s_index])
                 data = df.apply(pd.to_numeric, errors='coerce').dropna(how='any')
                 m_back_list = np.array(data[m_index] * m_unit, dtype=np.float64)*indentationCoefficient
                 V_back_list = np.array(data[v_index] * v_unit, dtype=np.float64)*appliedCoefficient
                 T_back_list = np.array(data[s_index] * s_unit, dtype=np.float64)*timeCoefficient
 
-            elif fname.endswith('.txt'):
+            elif os.path.splitext(fname)[1] in ['.txt','.csv']:
                 encode = getEncode(fname)
-                df = pd.read_csv(fname,sep='@',error_bad_lines=False,header=None,encoding=encode).dropna()
+                df = pd.read_table(fname,sep='@',error_bad_lines=False,header=None,nrows=2000,encoding=encode).dropna()
                 sensitivity_df = df[df[0].str.contains("sensitivity")]
                 if sensitivity_df.shape[0] > 0:
                     sensitivity = getFirstNumber(sensitivity_df.iloc[0,0])
