@@ -181,7 +181,7 @@ def getData(files,callBack):
                         chunk = reader.get_chunk(chunkSize)
                         chunks.append(chunk)
                         progress = progress + chunk.shape[0]
-                        callBack.dataProgress(1,progress,datetime.now() - start)
+                        callBack.dataProgress(1,progress,(datetime.now() - start).seconds)
                     except StopIteration:
                         loop = False
                 df = pd.concat(chunks,ignore_index=True)
@@ -192,11 +192,11 @@ def getData(files,callBack):
                 T_back_list = np.array(data[s_index] * s_unit, dtype=np.float64)*timeCoefficient
             else:
                 print("not support")
-            callBack.dataProgress(100,progress,datetime.now() - start)
+            callBack.dataProgress(100,progress,(datetime.now() - start).seconds)
             Datas.append(SuccessData(n, retracttime, sensitivity, springConstant, m_back_list, V_back_list, T_back_list,
                                      last_retract_index))
         except Exception as e:
-            callBack.dataProgress(-1,progress,datetime.now() - start,str(e))
+            callBack.dataProgress(-1,progress,(datetime.now() - start).seconds,str(e))
             fileinfo = fileinfo + str(e)
         FileWriter.write_log_info(fname,fileinfo)
     return Datas

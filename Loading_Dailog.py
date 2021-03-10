@@ -24,5 +24,7 @@ class LoadingDailog(QDialog,Ui_Dialog):
         self.gif.start()
 
     def dataProgress(self,state,progress,cost,msg = None):
-        print(str(state) + "-" + str(progress) + "-" +str(cost) + "-" +str(msg))
+        if state == 1 or state == 100:
+            text = str(progress) + " lines loaded,cost "+ str(cost) + " s"
+            self.label_2.setText(text)
 
