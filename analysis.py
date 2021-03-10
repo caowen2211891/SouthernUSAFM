@@ -145,13 +145,16 @@ class MainTool(QMainWindow,Ui_MainWindow):
         if tableItem.resultData is None:
             resultOptBtn.setIcon(QIcon('res/pic/warning.png'))       
         else:
+            viewBtn.setToolTip('View detail') 
             viewBtn.setStyleSheet(''' text-align : center''')
             viewBtn.setIcon(QIcon('res/pic/detail.png'))
             viewBtn.clicked.connect(lambda: self.openDetail(position,id,tableItem))
             if id in self.resultlist:
+                resultOptBtn.setToolTip('Remove result')  
                 resultOptBtn.setIcon(QIcon('res/pic/minus.png'))
                 resultOptBtn.clicked.connect(lambda:self.removetableItemToResult(position,id,tableItem))
             else:
+                resultOptBtn.setToolTip('Add result')  
                 resultOptBtn.setIcon(QIcon('res/pic/plus.png'))
                 resultOptBtn.clicked.connect(lambda:self.addtableItemToResult(position,id,tableItem))
 
@@ -211,10 +214,10 @@ class MainTool(QMainWindow,Ui_MainWindow):
 
         self.initInputFileTable()
 
-        openFileAction = QAction(QIcon('res/pic/single.png'), '&Open', self)
+        openFileAction = QAction(QIcon('res/pic/single.png'), '&Open File', self)
         openFileAction.triggered.connect(self.open)
 
-        openFolderAction = QAction(QIcon('res/pic/open.png'), '&Folder', self)
+        openFolderAction = QAction(QIcon('res/pic/open.png'), '&Open Folder', self)
         openFolderAction.triggered.connect(self.openbatch)
 
         exportAction = QAction(QIcon('res/pic/txt.png'), '&Export TXT', self)
@@ -518,9 +521,6 @@ class MainTool(QMainWindow,Ui_MainWindow):
 
     def saveimage(self):
         self.toolbar.save_figure()
-
-    def saveimg(self,path):
-        plt.savefig('D:\est.png')
 
     def build_tm(self):
         plt.style.use("dark_background") 

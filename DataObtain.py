@@ -151,7 +151,7 @@ def getData(files,callBack):
                 if springconstant_df.shape[0] > 0:
                     springConstant = getFirstNumber(springconstant_df.iloc[0,0])
  
-                df = pd.read_excel(fname,header=None,usecols=[m_index, v_index,s_index])
+                df = pd.read_excel(fname,low_memory=False,header=None,usecols=[m_index, v_index,s_index])
                 data = df.apply(pd.to_numeric, errors='coerce').dropna(how='any')
                 m_back_list = np.array(data[m_index] * m_unit, dtype=np.float64)*indentationCoefficient
                 V_back_list = np.array(data[v_index] * v_unit, dtype=np.float64)*appliedCoefficient
@@ -159,7 +159,7 @@ def getData(files,callBack):
 
             elif os.path.splitext(fname)[1] in ['.txt','.csv']:
                 encode = getEncode(fname)
-                df = pd.read_table(fname,sep='@',error_bad_lines=False,header=None,nrows=2000,encoding=encode).dropna()
+                df = pd.read_table(fname,sep='@',error_bad_lines=False,header=None,nrows=2000,encoding=encode,low_memory=False).dropna()
                 sensitivity_df = df[df[0].str.contains("sensitivity")]
                 if sensitivity_df.shape[0] > 0:
                     sensitivity = getFirstNumber(sensitivity_df.iloc[0,0])
@@ -169,9 +169,9 @@ def getData(files,callBack):
 
                 
                 if os.path.splitext(fname)[1] in ['.txt']:
-                    reader = pd.read_csv(fname,sep=cf.getDefalutSplit(),error_bad_lines=False,header=None,encoding=encode,iterator=True,usecols=[m_index,v_index,s_index])
+                    reader = pd.read_csv(fname,low_memory=False,sep=cf.getDefalutSplit(),error_bad_lines=False,header=None,encoding=encode,iterator=True,usecols=[m_index,v_index,s_index])
                 else :
-                    reader = pd.read_csv(fname,error_bad_lines=False,header=None,iterator=True,usecols=[m_index,v_index,s_index])
+                    reader = pd.read_csv(fname,low_memory=False,error_bad_lines=False,header=None,iterator=True,usecols=[m_index,v_index,s_index])
 
                 loop = True
                 chunkSize = 100000
