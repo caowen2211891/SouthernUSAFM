@@ -574,7 +574,7 @@
           <item>
            <widget class="QLabel" name="label_43">
             <property name="text">
-             <string>Line:Retrace - End</string>
+             <string>Line:Retract - End</string>
             </property>
            </widget>
           </item>

@@ -551,7 +551,7 @@ class Ui_MainWindow(object):
         self.r2_before.setText(_translate("MainWindow", "1"))
         self.label_6.setText(_translate("MainWindow", "Slope"))
         self.slope_before.setText(_translate("MainWindow", "0"))
-        self.label_43.setText(_translate("MainWindow", "Line:Retrace - End"))
+        self.label_43.setText(_translate("MainWindow", "Line:Retract - End"))
         self.r2_after.setText(_translate("MainWindow", "1"))
         self.label_44.setText(_translate("MainWindow", "Goodness of fit"))
         self.slope_after.setText(_translate("MainWindow", "0"))
