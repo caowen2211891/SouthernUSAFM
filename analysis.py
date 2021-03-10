@@ -47,11 +47,12 @@ class WorkThread(QThread):
     def __int__(self):
         super(WorkThread, self).__init__()
 
-    def addData(self,listitems):
+    def addData(self,listitems,callBack):
         self.listitems = listitems
+        self.callBack = callBack
 
     def run(self):
-        datas = DataObtain.getData(self.listitems)
+        datas = DataObtain.getData(self.listitems,self.callBack)
         self.successSignal.emit(datas)
 
 class MainTool(QMainWindow,Ui_MainWindow):
@@ -1211,10 +1212,11 @@ class MainTool(QMainWindow,Ui_MainWindow):
         else:    
             self.startaddData(file)
 
+
     def startaddData(self,file):
-        self.workThread.addData([file])
-        self.workThread.start()
         self.loading = LoadingDailog(self)
+        self.workThread.addData([file],self.loading)
+        self.workThread.start()
         self.loading.exec()
 
     def exportExcel(self):

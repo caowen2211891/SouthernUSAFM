@@ -93,7 +93,7 @@ def mayShouldChangeSpstr(fname,result):
             return True
     return False
 
-def getData(files):
+def getData(files,callBack):
     list = files
     # 返回的左下列表的数据
     Datas = []
@@ -116,6 +116,7 @@ def getData(files):
     appliedCoefficient = np.array(cf.getAppliedCoefficient(), dtype=np.float64)
     indentationCoefficient = np.array(cf.getIndentationCoefficient(), dtype=np.float64)
     
+    progress = 0
     for n in range(len(list)):
         fname = list[n]
         fileinfo = 'file: ' + os.path.basename(fname)+ '\n'
@@ -140,6 +141,7 @@ def getData(files):
             sensitivity = -1
             springConstant = -1
             start = datetime.now()
+            callBack.dataProgress(0,0,0)
             if os.path.splitext(fname)[1] in ['.xlsx','.xls']:
                 df = pd.read_excel(fname,header=None,nrows=2000).dropna()
                 sensitivity_df = df[df[0].str.contains("sensitivity")]
@@ -164,19 +166,37 @@ def getData(files):
                 springconstant_df = df[df[0].str.contains("springConstant")]
                 if springconstant_df.shape[0] > 0:
                     springConstant = getFirstNumber(springconstant_df.iloc[0,0])
-                    
-                df = pd.read_csv(fname,sep=cf.getDefalutSplit(),error_bad_lines=False,header=None,encoding=encode)
-                data = df.apply(pd.to_numeric, errors='coerce').dropna(how='any')
+
+                
+                if os.path.splitext(fname)[1] in ['.txt']:
+                    reader = pd.read_csv(fname,sep=cf.getDefalutSplit(),error_bad_lines=False,header=None,encoding=encode,iterator=True,usecols=[m_index,v_index,s_index])
+                else :
+                    reader = pd.read_csv(fname,error_bad_lines=False,header=None,iterator=True,usecols=[m_index,v_index,s_index])
+
+                loop = True
+                chunkSize = 100000
+                chunks = []
+                while loop:
+                    try:
+                        chunk = reader.get_chunk(chunkSize)
+                        chunks.append(chunk)
+                        progress = progress + chunk.shape[0]
+                        callBack.dataProgress(1,progress,datetime.now() - start)
+                    except StopIteration:
+                        loop = False
+                df = pd.concat(chunks,ignore_index=True)
+                progress = df.shape[0]
+                data = df.apply(pd.to_numeric, errors='coerce').dropna(how="any")
                 m_back_list = np.array(data[m_index] * m_unit, dtype=np.float64)*indentationCoefficient
                 V_back_list = np.array(data[v_index] * v_unit, dtype=np.float64)*appliedCoefficient
                 T_back_list = np.array(data[s_index] * s_unit, dtype=np.float64)*timeCoefficient
             else:
                 print("not support")
-            print("cost: "+str(datetime.now() - start) + "")
+            callBack.dataProgress(100,progress,datetime.now() - start)
             Datas.append(SuccessData(n, retracttime, sensitivity, springConstant, m_back_list, V_back_list, T_back_list,
                                      last_retract_index))
         except Exception as e:
-            print(e)
+            callBack.dataProgress(-1,progress,datetime.now() - start,str(e))
             fileinfo = fileinfo + str(e)
         FileWriter.write_log_info(fname,fileinfo)
     return Datas

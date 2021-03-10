@@ -23,4 +23,6 @@ class LoadingDailog(QDialog,Ui_Dialog):
         self.label.setMovie(self.gif)
         self.gif.start()
 
+    def dataProgress(self,state,progress,cost,msg = None):
+        print(str(state) + "-" + str(progress) + "-" +str(cost) + "-" +str(msg))
 
