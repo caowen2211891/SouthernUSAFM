@@ -116,7 +116,7 @@ class MainTool(QMainWindow,Ui_MainWindow):
 
     def initInputFileTable(self):
         self.tableWidget.setColumnCount(4)
-        self.tableWidget.setShowGrid(False)
+        self.tableWidget.setShowGrid(True)
         self.tableWidget.setHorizontalHeaderLabels(['Option','NO.','Filename','Result'])
         self.tableWidget.setColumnWidth(0,50)
         self.tableWidget.setColumnWidth(1,30)
@@ -511,8 +511,15 @@ class MainTool(QMainWindow,Ui_MainWindow):
     def saveimage(self):
         self.toolbar.save_figure()
 
-    def build_tm(self):
+    def changeDarkStyle(self):
         plt.style.use("dark_background") 
+        self.main_view.removeWidget(self.canvas_tm)
+        self.build_tm()
+        QtWidgets.QApplication.instance().setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
+
+
+    def build_tm(self):
+        # plt.style.use("dark_background") 
         self.fig_tm, self.ax_tm = plt.subplots()
         self.fig_tm.subplots_adjust(left=0.15,right=0.95)
         self.canvas_tm = FigureCanvas(self.fig_tm)
@@ -1244,7 +1251,7 @@ if __name__ == '__main__':
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     app = QApplication(sys.argv)
     pixmap = QPixmap("res/luncher.png")
-    app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
+    # app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
     splash = QSplashScreen(pixmap)
     splash.show()
     app.processEvents()
