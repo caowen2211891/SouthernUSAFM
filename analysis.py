@@ -303,18 +303,12 @@ class MainTool(QMainWindow,Ui_MainWindow):
         self.ac_et.textChanged.connect(self.onacedit)
 
         self.radioselect = self.settings.value('radioselect', 0)
+        self.tipGeometryComboBox.setCurrentIndex(self.radioselect)
         if self.radioselect == 0:
-            self.radio_cone.setChecked(True)
             self.stackedWidget.setCurrentIndex(0)
-        elif self.radioselect == 1:
-            self.radio_spher.setChecked(True)
-            self.stackedWidget.setCurrentIndex(1)
         else:
-            self.radio_punch.setChecked(True)
             self.stackedWidget.setCurrentIndex(1)
-        self.radio_cone.toggled.connect(self.radiotoggle)
-        self.radio_spher.toggled.connect(self.radiotoggle)
-        self.radio_punch.toggled.connect(self.radiotoggle)
+        self.tipGeometryComboBox.currentIndexChanged.connect(self.tipGeometryComboBoxIndexChanged)
 
 
         self.label_32.setToolTip('Ac=C1*hc^2+C2*hc+C3*hc^0.5+C4*hc^0.25')      
@@ -429,18 +423,13 @@ class MainTool(QMainWindow,Ui_MainWindow):
         self.es = (1 - pr**2)/(1/self.er-self.pk)
         return self.es
 
-
-    def radiotoggle(self):
-        if self.radio_cone.isChecked():
-            self.radioselect = 0
+    def tipGeometryComboBoxIndexChanged(self,index):
+        self.stackedWidget.setCurrentIndex(index)
+        if index == 0:
             self.stackedWidget.setCurrentIndex(0)
-        elif self.radio_spher.isChecked():
-            self.radioselect = 1
-            self.stackedWidget.setCurrentIndex(1)
         else:
-            self.radioselect = 2
             self.stackedWidget.setCurrentIndex(1)
-        self.settings.setValue('radioselect', self.radioselect)
+        self.settings.setValue('radioselect', index)
 
     def onradiusedit(self):
         temp = np.array(self.radius_et.text(), dtype=np.float64) * 1e-6

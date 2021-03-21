@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'Ui_Config.ui'
+# Form implementation generated from reading ui file 'UI_Config.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.1
 #
@@ -130,6 +130,12 @@ class Ui_Form(object):
         self.SensitivityEdit = QtWidgets.QLineEdit(Form)
         self.SensitivityEdit.setObjectName("SensitivityEdit")
         self.gridLayout_2.addWidget(self.SensitivityEdit, 5, 2, 1, 1)
+        self.label_14 = QtWidgets.QLabel(Form)
+        self.label_14.setObjectName("label_14")
+        self.gridLayout_2.addWidget(self.label_14, 4, 3, 1, 1)
+        self.label_15 = QtWidgets.QLabel(Form)
+        self.label_15.setObjectName("label_15")
+        self.gridLayout_2.addWidget(self.label_15, 5, 3, 1, 1)
         self.gridLayout_2.setColumnStretch(0, 2)
         self.gridLayout_2.setColumnStretch(1, 1)
         self.gridLayout_2.setColumnStretch(2, 1)
@@ -195,4 +201,6 @@ class Ui_Form(object):
         self.label_13.setText(_translate("Form", "Sensitivity"))
         self.SpringConstantEdit.setText(_translate("Form", "1"))
         self.SensitivityEdit.setText(_translate("Form", "1"))
+        self.label_14.setText(_translate("Form", "N/m"))
+        self.label_15.setText(_translate("Form", "N/mm"))
         self.label_10.setText(_translate("Form", "Color:"))

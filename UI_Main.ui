@@ -638,32 +638,23 @@
          </attribute>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <widget class="QComboBox" name="tipGeometryComboBox">
             <item>
-             <widget class="QRadioButton" name="radio_cone">
-              <property name="text">
-               <string>Berkovich</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
+             <property name="text">
+              <string>Berkovich</string>
+             </property>
             </item>
             <item>
-             <widget class="QRadioButton" name="radio_spher">
-              <property name="text">
-               <string>Spherical</string>
-              </property>
-             </widget>
+             <property name="text">
+              <string>Spherical</string>
+             </property>
             </item>
             <item>
-             <widget class="QRadioButton" name="radio_punch">
-              <property name="text">
-               <string>Punch</string>
-              </property>
-             </widget>
+             <property name="text">
+              <string>Punch</string>
+             </property>
             </item>
-           </layout>
+           </widget>
           </item>
           <item>
            <widget class="QStackedWidget" name="stackedWidget">
@@ -1312,9 +1303,6 @@
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <tabstops>
-  <tabstop>radio_cone</tabstop>
-  <tabstop>radio_spher</tabstop>
-  <tabstop>radio_punch</tabstop>
   <tabstop>radius_et</tabstop>
  </tabstops>
  <resources/>
