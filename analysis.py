@@ -1251,6 +1251,7 @@ if __name__ == '__main__':
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     app = QApplication(sys.argv)
     pixmap = QPixmap("res/luncher.png")
+    app.setStyleSheet(".QToolButton{background : rgb(0%,0%,0%,0%);}")
     # app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
     splash = QSplashScreen(pixmap)
     splash.show()
