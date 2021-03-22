@@ -202,5 +202,5 @@ class Ui_Form(object):
         self.SpringConstantEdit.setText(_translate("Form", "1"))
         self.SensitivityEdit.setText(_translate("Form", "1"))
         self.label_14.setText(_translate("Form", "N/m"))
-        self.label_15.setText(_translate("Form", "N/mm"))
+        self.label_15.setText(_translate("Form", "m/V"))
         self.label_10.setText(_translate("Form", "Color:"))
