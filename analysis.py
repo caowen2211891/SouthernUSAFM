@@ -109,6 +109,7 @@ class MainTool(QMainWindow,Ui_MainWindow):
 
     def __init__(self,name):
         super(MainTool,self).__init__()
+        self.setStyleSheet("QMenuBar{""background-color : rgb(240,240,240);""}")
         self.fileName = name
         self.cf = ConfigData()
         self.setupUi(self)
