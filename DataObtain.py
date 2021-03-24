@@ -198,5 +198,5 @@ def getData(files,callBack):
         except Exception as e:
             callBack.dataProgress(-1,progress,(datetime.now() - start).seconds,str(e))
             fileinfo = fileinfo + str(e)
-        FileWriter.write_log_info(fname,fileinfo)
+        # FileWriter.write_log_info(fname,fileinfo)
     return Datas

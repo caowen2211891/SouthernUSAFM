@@ -49,9 +49,9 @@ def mkzz1file(filename):
 def write_format(file,name,edata):
 
     if (edata > 0):
-        file.write(name + '   %.7e' % (edata))
+        file.write(name + '\t'+'%.7e' % (edata)+'\n')
     else:   
-        file.write(name + '  %.7e' % (edata))
+        file.write(name + '\t'+'%.7e' % (edata)+'\n')
         
 def write_log_info(filename,logInfo):
 
@@ -74,10 +74,8 @@ def write_log_info(filename,logInfo):
 def write(filename,datas):
 
     ZZ1file = mkzz1file(filename)
-
+    ZZ1file.write('Name\tResult\n')
     for key,values in  datas.items():
-        write_format(ZZ1file,key,values.es)
-        ZZ1file.write('\n')
-
+        write_format(ZZ1file,str(os.path.split(key)[1]),values.es)
     ZZ1file.close()
 

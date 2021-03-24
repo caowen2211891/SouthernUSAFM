@@ -30,7 +30,7 @@ from SoftConfig import ConfigData
 from UI_Main import Ui_MainWindow
 
 import matplotlib.ticker as mtick
-import cgitb
+
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 # from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QItemDelegate, QPushButton, QTableView, QTableWidget,QWidget)
@@ -60,6 +60,7 @@ class MainTool(QMainWindow,Ui_MainWindow):
     workThread = WorkThread()
     settings = QSettings("amf","amf")
     cf = ''
+    curDir = ''
     detail = None
     # 文件名列表
     filelist = []
@@ -716,9 +717,11 @@ class MainTool(QMainWindow,Ui_MainWindow):
                 if len(links) > 0:
                     filepath = links[0]
                     if os.path.isfile(filepath) and (os.path.splitext(filepath)[1] in ['.txt','.xlsx','.xls','.csv']):
+                        self.curDir = os.path.abspath(os.path.dirname(filepath))
                         self.open_file(filepath)
                     elif os.path.isdir(filepath):
                         self.open_dir(filepath)
+                        self.curDir = filepath
             else:
                 event.ignore()
         except Exception as e:
@@ -1152,6 +1155,7 @@ class MainTool(QMainWindow,Ui_MainWindow):
         dir=QFileDialog.getExistingDirectory(self,"Select Directory",self.settings.value('selectdir',"/"))
         if dir == '':
             return
+        self.curDir = dir
         self.settings.setValue('selectdir', os.path.abspath(dir))
         self.open_dir(dir)
 
@@ -1183,9 +1187,7 @@ class MainTool(QMainWindow,Ui_MainWindow):
         files,ok1=QFileDialog.getOpenFileNames(self,"Select File",self.settings.value('select',"/"),"Text Files (*.txt *.xlsx *.xls *.csv)")
         if(len(files) > 0):
             self.settings.setValue('select', os.path.abspath(os.path.dirname(files[0])+os.path.sep+"."))
-            if len(files) <= 0:
-                self.showErrorDialog('Not Found .txt .xlsx .xls File')
-                return
+            self.curDir = os.path.abspath(os.path.dirname(files[0]))
             path = files[0].replace('/','\\')
             self.tableItems.clear()
             self.tableItems[path] = TableItem(path)
@@ -1194,8 +1196,6 @@ class MainTool(QMainWindow,Ui_MainWindow):
 
     def open_file(self,filepath):
         self.resultlist.clear()
-        crashDir = FileWriter.mkcrashfile(filepath)
-        cgitb.enable(display=1,logdir=crashDir,format='text')
         self.inputdata(filepath)
         self.filelist.clear()
         self.filelist.append(filepath)
@@ -1239,7 +1239,7 @@ class MainTool(QMainWindow,Ui_MainWindow):
         if self.resultlist is None or len(self.resultlist) == 0:
             self.showToast('No Result')
             return
-        filename,filetype=QFileDialog.getSaveFileName(self,'save file','/E.xlsx',"Text Files (*.xlsx)")
+        filename,filetype=QFileDialog.getSaveFileName(self,'save file',self.curDir +'/Result.xlsx',"Text Files (*.xlsx)")
         if filename == "":
             return
         try:
@@ -1254,7 +1254,7 @@ class MainTool(QMainWindow,Ui_MainWindow):
         if self.resultlist is None or len(self.resultlist) == 0:
             self.showToast('No Result')
             return
-        filename,filetype=QFileDialog.getSaveFileName(self,'save file','/E.txt',"Text Files (*.txt)")
+        filename,filetype=QFileDialog.getSaveFileName(self,'save file',self.curDir + '/Result.txt',"Text Files (*.txt)")
         if filename == "":
             return
         FileWriter.write(filename, self.resultlist)
