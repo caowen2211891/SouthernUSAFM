@@ -439,6 +439,7 @@ class MainTool(QMainWindow,Ui_MainWindow):
         return self.es
 
     def tipGeometryComboBoxIndexChanged(self,index):
+        self.radioselect = index
         self.stackedWidget.setCurrentIndex(index)
         if index == 0:
             self.stackedWidget.setCurrentIndex(0)
