@@ -142,12 +142,12 @@ class MainTool(QMainWindow,Ui_MainWindow):
         widget=QWidget()
         viewBtn = QToolButton(self)
         resultOptBtn = QToolButton(self)
-        resultOptBtn.setStyleSheet(''' text-align : center''')
+        resultOptBtn.setStyleSheet(" QToolButton{background-color : rgb(0%,0%,0%,0%);text-align : center;}")
+        viewBtn.setStyleSheet(" QToolButton{background-color : rgb(0%,0%,0%,0%);text-align : center;}")
         if tableItem.resultData is None:
             resultOptBtn.setIcon(QIcon('res/pic/warning.png'))       
         else:
-            viewBtn.setToolTip('View detail') 
-            viewBtn.setStyleSheet(''' text-align : center''')
+            viewBtn.setToolTip('View detail')            
             viewBtn.setIcon(QIcon('res/pic/detail.png'))
             viewBtn.clicked.connect(lambda: self.openDetail(position,id,tableItem))
             if id in self.resultlist:
@@ -210,6 +210,11 @@ class MainTool(QMainWindow,Ui_MainWindow):
             self.tableItemPositions[key]=i
             i = i+1
 
+    def showhorizontalLayout_radius(self,show):
+        if show:
+            self.stackedWidget_2.setVisible(True)
+        else:
+            self.stackedWidget_2.setVisible(False)
 
     def initUI(self):
 
@@ -251,6 +256,11 @@ class MainTool(QMainWindow,Ui_MainWindow):
 
         helpMenu.addAction(helpAction)
 
+        self.toolButton_open.setStyleSheet("background-color :white")
+        self.toolButton_folder.setStyleSheet("background-color :white")
+        self.toolButton_txt.setStyleSheet("background-color :white")
+        self.toolButton_excel.setStyleSheet("background-color :white")
+        self.toolButton_setting.setStyleSheet("background-color :white")
         self.toolButton_open.setDefaultAction(openFileAction)
         self.toolButton_folder.setDefaultAction(openFolderAction)
         self.toolButton_txt.setDefaultAction(exportAction)
@@ -307,8 +317,12 @@ class MainTool(QMainWindow,Ui_MainWindow):
         self.tipGeometryComboBox.setCurrentIndex(self.radioselect)
         if self.radioselect == 0:
             self.stackedWidget.setCurrentIndex(0)
+            self.stackedWidget.setVisible(True)
+            self.showhorizontalLayout_radius(False)
         else:
             self.stackedWidget.setCurrentIndex(1)
+            self.stackedWidget.setVisible(False)
+            self.showhorizontalLayout_radius(True)
         self.tipGeometryComboBox.currentIndexChanged.connect(self.tipGeometryComboBoxIndexChanged)
 
 
@@ -428,8 +442,12 @@ class MainTool(QMainWindow,Ui_MainWindow):
         self.stackedWidget.setCurrentIndex(index)
         if index == 0:
             self.stackedWidget.setCurrentIndex(0)
+            self.stackedWidget.setVisible(True)
+            self.showhorizontalLayout_radius(False)
         else:
             self.stackedWidget.setCurrentIndex(1)
+            self.showhorizontalLayout_radius(True)
+            self.stackedWidget.setVisible(False)
         self.settings.setValue('radioselect', index)
 
     def onradiusedit(self):
@@ -1252,7 +1270,7 @@ if __name__ == '__main__':
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     app = QApplication(sys.argv)
     pixmap = QPixmap("res/luncher.png")
-    app.setStyleSheet(".QToolButton{background : rgb(0%,0%,0%,0%);}")
+    # app.setStyleSheet(".QToolButton{background : rgb(0%,0%,0%,0%);}")
     # app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
     splash = QSplashScreen(pixmap)
     splash.show()
