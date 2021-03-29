@@ -39,6 +39,20 @@ class InputParamsData(object):
         self.PRTip = PRTip
         self.Etip = Etip
         self.TipModel = TipModel
+        self.c1 = None
+        self.c2 = None
+        self.c3 = None
+        self.c4 = None
+        self.radius = None
+    
+    def setc1c2c3c4(self,c1,c2,c3,c4):
+        self.c1 = c1
+        self.c2 = c2
+        self.c3 = c3
+        self.c4 = c4
+
+    def setradius(self,radius):
+        self.radius = radius
 
 class TableItem(object):
 

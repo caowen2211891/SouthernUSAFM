@@ -23,12 +23,12 @@ import FileWriter,calculate_AFM
 import DataObtain
 import calculate_FD
 from Config_Dailog import ConfigDailog
-from DataBean import Detail,ResultData,TableItem
+from DataBean import Detail,ResultData,TableItem,InputParamsData
 from Detail_Dailog import DetailDailog
 from Loading_Dailog import LoadingDailog
 from SoftConfig import ConfigData
 from UI_Main import Ui_MainWindow
-
+from JobThread import WorkThread,CalculateThread
 import matplotlib.ticker as mtick
 
 
@@ -37,23 +37,6 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 from PyQt5.QtWidgets import QWidget,QToolButton,QHBoxLayout,QHeaderView, QTableWidgetItem, QAbstractItemView, QTableView, QDialog,QPushButton
 
-
-class WorkThread(QThread):
-
-    trigger = pyqtSignal(int)
-
-    successSignal = pyqtSignal(list)
-
-    def __int__(self):
-        super(WorkThread, self).__init__()
-
-    def addData(self,listitems,callBack):
-        self.listitems = listitems
-        self.callBack = callBack
-
-    def run(self):
-        datas = DataObtain.getData(self.listitems,self.callBack)
-        self.successSignal.emit(datas)
 
 class MainTool(QMainWindow,Ui_MainWindow):
 
@@ -267,6 +250,20 @@ class MainTool(QMainWindow,Ui_MainWindow):
         self.toolButton_txt.setDefaultAction(exportAction)
         self.toolButton_excel.setDefaultAction(exportexcelAction)
         self.toolButton_setting.setDefaultAction(settingsAction)
+
+        self.previoustoolButton.setStyleSheet("background-color :white")
+        self.nexttoolButton.setStyleSheet("background-color :white")
+        self.alltoolButton.setStyleSheet("background-color :white")
+        nextAction = QAction(QIcon('res/pic/next.png'), '&Next', self)
+        previousAction = QAction(QIcon('res/pic/previous.png'), '&Previous', self)
+        allAction = QAction(QIcon('res/pic/all.jpg'), '&All', self)
+        nextAction.triggered.connect(self.next)
+        previousAction.triggered.connect(self.previous)
+        allAction.triggered.connect(self.all)
+        self.previoustoolButton.setDefaultAction(previousAction)
+        self.nexttoolButton.setDefaultAction(nextAction)
+        self.alltoolButton.setDefaultAction(allAction)
+        
         self.ls = ['Time', 'Froce', 'Height']
         self.refresh_combo(self.ls)
         self.x_combo.currentTextChanged.connect(self.on_x_select)
@@ -622,7 +619,17 @@ class MainTool(QMainWindow,Ui_MainWindow):
                 return
             
             self.compute_h()
-            self.detail = self.create_detail()
+            resultmap = {}
+            resultmap['hh'] = self.hh
+            resultmap['pk'] = self.pk
+            resultmap['er'] = self.er
+            resultmap['s'] = self.s
+            resultmap['es'] = self.es
+            resultmap['pu'] = self.pu
+            resultmap['hu'] = self.hu
+            resultmap['hc'] = self.hc
+            resultmap['ac'] = self.ac
+            self.detail = self.create_detail(self.radioselect,resultmap,self.radius)
             self.tableItems[self.curfilename].detail = self.detail
             self.tableItems[self.curfilename].resultData.E = self.es
         ## auto add result()
@@ -633,9 +640,85 @@ class MainTool(QMainWindow,Ui_MainWindow):
         self.showTableWidgetButton(position,self.curfilename,tableItem)
         self.ingcalculateResult = False
 
+    def calculateResultAll(self):
+        self.loading = LoadingDailog(self)
+        calculateResultAllThread = WorkThread()
+        calculateResultAllThread.successSignal.connect(self.calculateResultAllResult)
+        files = []
+        for key in self.tableItems:
+            files.append(key)
+        calculateResultAllThread.addData(files,self.loading)
+        calculateResultAllThread.start()
+        self.loading.exec()
+
+    def calculateResultAllResult(self,datas):
+        allDatas = []
+        beforeCount = int(self.bc_et.text())
+        afterCount = int(self.ac_et.text())
+        index = self.retract_index
+        PRSample = np.array(self.prsample_et.text(), dtype=np.float64)
+        PRtip = np.array(self.prtip_et.text(), dtype=np.float64)
+        Etip = np.array(self.etip_et.text(), dtype=np.float64)
+        TipModel = self.radioselect
+        inputParamsData = InputParamsData(PRSample,PRtip,Etip,TipModel)
+        if TipModel == 0:
+            inputParamsData.setc1c2c3c4(self.c1,self.c2,self.c3,self.c4)
+        else:
+            inputParamsData.setradius(self.radius)
+        for successData in datas:
+            sourceData = {}
+            sourceData['fileName'] = successData.fileName
+            sourceData['T_list'] = successData.T_list
+            sourceData['m_list'] = successData.m_list
+            sourceData['V_list'] = successData.V_list
+            sourceData['beforeCount'] = beforeCount
+            sourceData['afterCount'] = afterCount
+            sourceData['index'] = index
+            calculate = {}
+            calculate['sourceData'] = sourceData
+            calculate['resultmap'] = {}
+            calculate['inputParamsData'] = inputParamsData
+            allDatas.append(calculate)
+        self.calculateThread = CalculateThread()
+        self.calculateThread.setCalculateData(allDatas)
+        self.calculateThread.successSignal.connect(self.calculateThreadData)
+        self.calculateThread.start()
+
+    def previous(self):
+        row = self.tableWidget.currentRow()
+        if row > 0:
+            self.tableWidget.cellDoubleClicked.emit(row-1, 2)
+            self.tableWidget.selectRow(row-1)
+
+    def next(self):
+        row = self.tableWidget.currentRow()
+        if row < self.tableWidget.rowCount():
+            self.tableWidget.selectRow(row+1)
+            self.tableWidget.cellDoubleClicked.emit(row+1, 2)
+
+    def all(self):
+        self.calculateResultAll()
 
     def showToast(self,text):
         self.label_tips.setText(text)
+
+    def calculateThreadData(self,datas):
+        self.loading.close()
+        for data in datas:
+            filename = data['sourceData']['fileName']
+            inputParamsData = data['inputParamsData']
+            resultmap = data['resultmap']
+            detail = self.create_detail(inputParamsData.TipModel,resultmap,inputParamsData.radius)
+            self.tableItems[filename].detail = detail
+            if 'es' in resultmap:   
+                resultData = ResultData(filename,data['sourceData']['index'],self.data.sensitivity,self.data.springConstant)
+                resultData.E = resultmap['es']
+                self.tableItems[filename].resultData = resultData
+                self.resultlist.update({filename: detail})
+                self.showToast("Add file result:" + filename)
+                position = self.tableItemPositions[filename]
+                tableItem = self.tableItems[filename]
+                self.showTableWidgetButton(position,filename,tableItem)
         
     def on_move(self,event):
         if self.zooming:
@@ -1176,12 +1259,24 @@ class MainTool(QMainWindow,Ui_MainWindow):
         self.settings.setValue('isOpenFile', False)
 
 
-    def create_detail(self):
-        if self.radioselect == 0:
-            detail = Detail(self.hh, self.pk,self.er,self.s, self.es, self.pu, self.hu, self.hc, self.ac, None)
-        else:
-            detail = Detail(self.hh, self.pk,self.er,self.s, self.es, self.pu, self.hu, None, None, self.radius)
-        return detail
+    def create_detail(self,radioselect,resultmap,radius):
+        try:
+            hh=resultmap['hh']
+            pk=resultmap['pk']
+            er=resultmap['er']
+            s=resultmap['s']
+            es=resultmap['es']
+            pu=resultmap['pu']
+            hc=resultmap['hc']
+            hu=resultmap['hu']
+            ac=resultmap['ac']
+            if radioselect == 0:
+                detail = Detail(hh,pk,er,s,es,pu,hu,hc,ac, None)
+            else:
+                detail = Detail(hh,pk,er,s,es,pu,hu,None,None,radius)
+            return detail
+        except Exception as e:
+            return None
 
     def open(self):
         files,ok1=QFileDialog.getOpenFileNames(self,"Select File",self.settings.value('select',"/"),"Text Files (*.txt *.xlsx *.xls *.csv)")

@@ -22,9 +22,10 @@ class LoadingDailog(QDialog,Ui_Dialog):
         self.gif = QMovie('res/gif/loading.gif')
         self.label.setMovie(self.gif)
         self.gif.start()
+        self.label_2.setStyleSheet("background-color :white")
 
-    def dataProgress(self,state,progress,cost,msg = None):
+    def dataProgress(self,state,progress,cost,position,total,msg = None):
         if state == 1 or state == 100:
-            text = str(progress) + " lines loaded,cost "+ str(cost) + " s"
+            text = str(progress) + " lines loaded,cost "+ str(cost) + " s" + "-" + str(position)+ "/"+ str(total)
             self.label_2.setText(text)
 
